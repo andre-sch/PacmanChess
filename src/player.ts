@@ -58,20 +58,43 @@ class PlayerController {
 }
 
 class PlayerRenderer {
+  private animationTimeout: number;
+
   constructor(
     private readonly player: Player,
     private readonly grid: Grid
-  ) {}
+  ) {
+    const animationDelay = 0.15;
+    const animationDuration = 0.6;
+    this.animationTimeout = (animationDelay + animationDuration) * 1000;
+
+    const css = document.styleSheets[0];
+    css.insertRule(`.player::after {
+      animation-duration: ${animationDuration}s;
+      animation-delay: ${animationDelay}s;
+    }`);
+  }
 
   public render() {
+    this.player.variations.push(this.player.direction);
     this.grid.update(this.player.row, this.player.column, this.player);
+
+    const getDirectionOf = (key: string) => Direction[key.toUpperCase() as keyof typeof Direction];
 
     setInterval(() => {
       this.grid.remove(this.player.row, this.player.column);
 
+      const previousDirection = getDirectionOf(this.player.variations[0]);
+      const nextDirection = getDirectionOf(this.player.direction);
+
+      this.player.direction = previousDirection;
       this.player.move();
+
+      this.player.direction = nextDirection;
+      this.player.variations = [nextDirection];
+
       this.grid.update(this.player.row, this.player.column, this.player);
-    }, 500);
+    }, this.animationTimeout);
   }
 }
 

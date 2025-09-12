@@ -23,9 +23,105 @@ html, body, #app {
 }
 
 .cell {
+  position: relative;
   background: #fff;
 }
 
 .cell.player {
-  background: #aaa;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.cell.player::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  bottom: 0%;
+  left: 50%;
+  translate: -50% 0;
+  height: 2.5rem;
+  aspect-ratio: 2/3;
+  background-image: url("/assets/white-pawn.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.cell.player.right::after { animation-name: moveRight }
+.cell.player.left::after { animation-name: moveLeft; scale: -1 1; }
+.cell.player.up::after { animation-name: moveUp }
+.cell.player.down::after { animation-name: moveDown }
+
+@keyframes moveRight {
+  20% {
+    translate: -50% -15%;
+  }
+
+  60% {
+    left: 100%;
+    translate: -50% -30%;
+    rotate: -10deg;
+  }
+
+  100% {
+    left: 150%;
+    translate: -50% 0%;
+  }
+}
+
+@keyframes moveLeft {
+  20% {
+    translate: -50% -15%;
+  }
+
+  60% {
+    left: 0%;
+    translate: -50% -30%;
+    rotate: 10deg;
+  }
+
+  100% {
+    left: -50%;
+    translate: -50% 0%;
+  }
+}
+
+@keyframes moveUp {
+  20% {
+    translate: -50% -30%;
+    transform: scale(1.05) rotate(-5deg);
+  }
+
+  60% {
+    translate: -50% -60%;
+    transform: scale(1.05) rotate(-5deg);
+  }
+
+  80% {
+    translate: -50% -80%;
+  }
+
+  100% {
+    translate: -50% -100%;
+  }
+}
+
+@keyframes moveDown {
+  20% {
+    translate: -50% 30%;
+    transform: scale(1.05) rotate(-5deg);
+  }
+
+  60% {
+    translate: -50% 60%;
+    transform: scale(1.05) rotate(-5deg);
+  }
+
+  80% {
+    translate: -50% 80%;
+  }
+
+  100% {
+    translate: -50% 100%;
+  }
 }

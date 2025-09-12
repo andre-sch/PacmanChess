@@ -46,11 +46,9 @@ class Grid {
 
   public update(row: number, column: number, value: GameObject | null): void {
     if (
-      row < 0 || row >= this.numberOfRows ||
-      column < 0 || column >= this.numberOfColumns
-    ) {
-      throw new Error("Cannot update element out of bounds");
-    }
+      row < 0 || this.numberOfRows <= row ||
+      column < 0 || this.numberOfColumns <= column
+    ) return;
 
     this.elements[row][column] = value;
     this.eventPublisher?.publishUpdate(row, column);
@@ -94,8 +92,16 @@ class GridRenderer implements GridSubscriber {
     const updatedElement = document.querySelector(`.cell:nth-child(${row * this.grid.numberOfColumns + column + 1})`);
     if (!updatedElement) throw new Error("Failed to update element");
 
-    const elementType = this.grid.elements[row][column]?.type || "";
-    updatedElement.className = "cell " + elementType;
+    updatedElement.className = "cell";
+
+    const object = this.grid.elements[row][column];
+    if (object) {
+      updatedElement.classList.add(object.type);
+
+      for (const variation of object.variations) {
+        updatedElement.classList.add(variation);
+      }
+    }
   }
 }
 
