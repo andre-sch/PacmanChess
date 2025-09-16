@@ -10,8 +10,9 @@ class CollisionHandler implements PlayerSubscriber {
     if (object == null) return;
 
     if (object.type == "pellet") {
-      movement.agent.promoted = true;
       movement.agent.score += 50;
+      movement.agent.promoted = true;
+      setTimeout(() => movement.agent.promoted = false, 8000);
     }
 
     if (object.type == "dot") {

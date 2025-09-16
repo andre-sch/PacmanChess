@@ -97,12 +97,13 @@ class PlayerController {
 
 class PlayerRenderer {
   private animationTimeout: number;
+  private promotionSpeedRatio = 5;
 
   constructor(
     private readonly player: Player,
     private readonly grid: Grid
   ) {
-    const animationDelay = 0.15;
+    const animationDelay = 0.1;
     const animationDuration = 0.6;
     this.animationTimeout = (animationDelay + animationDuration) * 1000;
 
@@ -110,6 +111,11 @@ class PlayerRenderer {
     css.insertRule(`.player::after {
       animation-duration: ${animationDuration}s;
       animation-delay: ${animationDelay}s;
+    }`);
+
+    css.insertRule(`.player.promoted::after {
+      animation-duration: ${(animationDuration + animationDelay) / this.promotionSpeedRatio}s;
+      animation-delay: 0s;
     }`);
   }
 
@@ -119,33 +125,43 @@ class PlayerRenderer {
 
     const getDirectionOf = (key: string) => Direction[key.toUpperCase() as keyof typeof Direction];
 
+    let count = 0;
+    const iterations = this.promotionSpeedRatio;
+
     setInterval(() => {
-      this.grid.remove(this.player.row, this.player.column);
+      count++;
+      if (this.player.promoted || count % iterations == 1) {
+        this.grid.remove(this.player.row, this.player.column);
 
-      const previousDirection = getDirectionOf(Array.from(this.player.variations)[0]);
-      const nextDirection = getDirectionOf(this.player.direction);
+        const previousDirectionKey = Array.from(this.player.variations).toString().match(/up|down|left|right/)![0];
+        const previousDirection = getDirectionOf(previousDirectionKey);
+        const nextDirection = getDirectionOf(this.player.direction);
 
-      this.player.direction = previousDirection;
-      if (this.grid.canTraverse(...this.player.nextPosition())) {
-        this.player.move();
-      }
-
-      this.player.direction = nextDirection;
-      if (this.grid.canTraverse(...this.player.nextPosition())) {
-        this.player.variations.delete("stopped");
-        this.player.variations.delete(previousDirection);
-        this.player.variations.add(nextDirection);
-      } else {
         this.player.direction = previousDirection;
-        if (!this.grid.canTraverse(...this.player.nextPosition())) {
-          this.player.variations.add("stopped");
+        if (this.grid.canTraverse(...this.player.nextPosition())) {
+          this.player.move();
+          if (this.player.promoted) {
+            this.player.variations.add("promoted");
+          } else this.player.variations.delete("promoted");
         }
 
         this.player.direction = nextDirection;
-      }
+        if (this.grid.canTraverse(...this.player.nextPosition())) {
+          this.player.variations.delete("stopped");
+          this.player.variations.delete(previousDirection);
+          this.player.variations.add(nextDirection);
+        } else {
+          this.player.direction = previousDirection;
+          if (!this.grid.canTraverse(...this.player.nextPosition())) {
+            this.player.variations.add("stopped");
+          }
 
-      this.grid.update(this.player.row, this.player.column, this.player);
-    }, this.animationTimeout);
+          this.player.direction = nextDirection;
+        }
+
+        this.grid.update(this.player.row, this.player.column, this.player);
+      }
+    }, this.animationTimeout / iterations);
   }
 }
 
