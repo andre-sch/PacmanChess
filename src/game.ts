@@ -6,10 +6,11 @@ const container = document.getElementById("app") as HTMLDivElement;
 function startGame(): void {
   /* Grid config */
   const tileSize = 32;
-  const gapSize = 1;
+  const gapSize = 2;
 
-  const numberOfRows = Math.floor((container.clientHeight + gapSize) / (tileSize + gapSize));
-  const numberOfColumns = Math.floor((container.clientWidth + gapSize) / (tileSize + gapSize));
+  let numberOfRows = Math.floor((container.clientHeight + gapSize) / (tileSize + gapSize));
+  let numberOfColumns = Math.floor((container.clientWidth + gapSize) / (tileSize + gapSize));
+  if (numberOfColumns % 2 == 0) numberOfColumns--;
 
   const grid = new Grid(numberOfRows, numberOfColumns);
 

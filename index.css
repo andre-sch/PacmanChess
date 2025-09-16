@@ -19,16 +19,26 @@ html, body, #app {
 }
 
 #grid {
-  background: #ddd;
+  background: hsl(227, 76%, 45%);
 }
 
 .cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
   background: #fff;
 }
 
-.cell.player {
-  background: rgba(0, 0, 0, 0.1);
+.cell:nth-child(even) {
+  background: repeating-linear-gradient(
+    45deg,
+    hsl(227, 76%, 45%),
+    hsl(227, 76%, 45%) 5%,
+    #fff 5%,
+    #fff 11%
+  );
+}
 }
 
 .cell.player::after {
