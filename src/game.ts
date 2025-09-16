@@ -1,6 +1,7 @@
+import { Player, PlayerController, PlayerEventPublisher, PlayerRenderer } from "./player";
 import { Grid, GridEventPublisher, GridRenderer } from "./grid";
 import { Maze } from "./maze";
-import { Player, PlayerController, PlayerRenderer } from "./player";
+import { CollisionHandler } from "./collision";
 
 const container = document.getElementById("app") as HTMLDivElement;
 
@@ -30,6 +31,9 @@ function startGame(): void {
 
   const playerRenderer = new PlayerRenderer(player, grid);
   playerRenderer.render();
+
+  player.eventPublisher = new PlayerEventPublisher();
+  player.eventPublisher.subscribe(new CollisionHandler(grid));
 
   /* Maze config */
   const maze = new Maze(grid);

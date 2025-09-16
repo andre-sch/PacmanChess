@@ -1,6 +1,28 @@
 import { GameObject } from "./gameObject";
 import type { Grid } from "./grid";
 
+interface PlayerMovement {
+  agent: Player;
+  previousPosition: [number, number];
+  nextPosition: [number, number];
+}
+
+interface PlayerSubscriber {
+  update(context: PlayerMovement): void;
+}
+
+class PlayerEventPublisher {
+  private subscribers: PlayerSubscriber[] = [];
+
+  public subscribe(subscriber: PlayerSubscriber): void {
+    this.subscribers.push(subscriber);
+  }
+
+  public publishUpdate(agent: Player, previousPosition: [number, number], nextPosition: [number, number]) {
+    this.subscribers.forEach(subscriber => subscriber.update({ agent, previousPosition, nextPosition }));
+  }
+}
+
 enum Direction {
   UP = "up",
   DOWN = "down",
@@ -18,12 +40,18 @@ class Player extends GameObject {
     right: [0, 1]
   }
 
+  public eventPublisher?: PlayerEventPublisher;
+
   constructor(
     public row: number = 0,
     public column: number = 0,
-    public direction: Direction = Direction.RIGHT
+    public direction: Direction = Direction.RIGHT,
+    public promoted: boolean = false,
+    public score: number = 0,
+    options?: { eventPublisher: PlayerEventPublisher }
   ) {
     super("player");
+    this.eventPublisher = options?.eventPublisher;
   }
 
   public nextPosition(): [number, number] {
@@ -32,9 +60,14 @@ class Player extends GameObject {
   }
 
   public move(): void {
-    const [nextRow, nextColumn] = this.nextPosition();
+    const previousPosition: [number, number] = [this.row, this.column];
+    const nextPosition = this.nextPosition();
+
+    const [nextRow, nextColumn] = nextPosition;
     this.row = nextRow;
     this.column = nextColumn;
+
+    this.eventPublisher?.publishUpdate(this, previousPosition, nextPosition);
   }
 }
 
@@ -116,8 +149,14 @@ class PlayerRenderer {
   }
 }
 
+export type {
+  PlayerMovement,
+  PlayerSubscriber
+}
+
 export {
   Player,
   PlayerController,
+  PlayerEventPublisher,
   PlayerRenderer
 };
