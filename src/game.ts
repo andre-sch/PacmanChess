@@ -37,7 +37,7 @@ function startGame(): void {
 
   /* Maze config */
   const maze = new Maze(grid);
-  maze.generate({ player: [row, column] });
+  maze.generate({ player });
 }
 
 export {

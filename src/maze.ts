@@ -1,5 +1,6 @@
 import { GameObject } from "./gameObject";
 import { Grid } from "./grid";
+import type { Player } from "./player";
 
 class Hole extends GameObject {
   constructor(
@@ -46,7 +47,9 @@ class Maze {
     this.numberOfHoles = Math.ceil((0.25 * numberOfCells) / averageHole);
   }
 
-  public generate(props: { player: [number, number] }): void {
+  public generate(props: { player: Player }): void {
+    this.grid.update(...props.player.nextPosition(), new Dot());
+
     this.generateHoles();
     this.generateDots(props);
   }
@@ -96,15 +99,15 @@ class Maze {
     }
   }
 
-  private generateDots(props: { player: [number, number] }): void {
+  private generateDots(props: { player: Player }): void {
     const encode = (row: number, column: number) => row * this.grid.numberOfColumns + column;
     const decode = (id: number): [number, number] => [Math.floor(id / this.grid.numberOfColumns), id % this.grid.numberOfColumns];
 
     const visited = new Set<number>();
-    visited.add(encode(props.player[0], props.player[1]));
+    visited.add(encode(props.player.row, props.player.column));
 
     const queue: [number, number][] = [];
-    queue.push(props.player);
+    queue.push([props.player.row, props.player.column]);
 
     while (queue.length > 0) {
       const [row, col] = queue.shift()!;
