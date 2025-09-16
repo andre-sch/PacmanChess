@@ -51,6 +51,7 @@ html, body, #app {
   height: 25%;
   border-radius: 50%;
   background: hsl(227, 76%, 35%);
+  border: 3px solid #fff;
 }
 
 .cell.pellet::after {
@@ -60,6 +61,7 @@ html, body, #app {
   height: 50%;
   border-radius: 50%;
   background: hsl(227, 76%, 35%);
+  border: 3px solid #fff;
 }
 
 .cell.player::after {
