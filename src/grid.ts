@@ -38,6 +38,13 @@ class Grid {
     }
   }
 
+  public get center(): [number, number] {
+    return [
+      Math.floor(this.numberOfRows / 2),
+      Math.floor(this.numberOfColumns / 2)
+    ];
+  }
+
   public remove(row: number, column: number): GameObject | null {
     const element = this.elements[row][column];
     this.update(row, column, null);

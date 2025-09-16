@@ -21,7 +21,8 @@ function startGame(): void {
   grid.eventPublisher.subscribe(gridRenderer);
 
   /* Player config */
-  const player = new Player();
+  const [row, column] = grid.center;
+  const player = new Player(row, column);
 
   const playerController = new PlayerController(player);
   playerController.bindKeyboard();
