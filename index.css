@@ -39,6 +39,27 @@ html, body, #app {
     #fff 11%
   );
 }
+
+.cell.hole {
+  background: hsl(227, 76%, 56%);
+}
+
+.cell.dot::after {
+  display: block;
+  content: "";
+  width: 25%;
+  height: 25%;
+  border-radius: 50%;
+  background: hsl(227, 76%, 35%);
+}
+
+.cell.pellet::after {
+  display: block;
+  content: "";
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  background: hsl(227, 76%, 35%);
 }
 
 .cell.player::after {

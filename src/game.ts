@@ -1,4 +1,5 @@
 import { Grid, GridEventPublisher, GridRenderer } from "./grid";
+import { Maze } from "./maze";
 import { Player, PlayerController, PlayerRenderer } from "./player";
 
 const container = document.getElementById("app") as HTMLDivElement;
@@ -29,6 +30,10 @@ function startGame(): void {
 
   const playerRenderer = new PlayerRenderer(player, grid);
   playerRenderer.render();
+
+  /* Maze config */
+  const maze = new Maze(grid);
+  maze.generate({ player: [row, column] });
 }
 
 export {
