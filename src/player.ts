@@ -26,10 +26,15 @@ class Player extends GameObject {
     super("player");
   }
 
-  public move(): void {
+  public nextPosition(): [number, number] {
     const [rowDelta, columnDelta] = this.movements[this.direction];
-    this.row += rowDelta;
-    this.column += columnDelta;
+    return [this.row + rowDelta, this.column + columnDelta];
+  }
+
+  public move(): void {
+    const [nextRow, nextColumn] = this.nextPosition();
+    this.row = nextRow;
+    this.column = nextColumn;
   }
 }
 
@@ -76,7 +81,7 @@ class PlayerRenderer {
   }
 
   public render() {
-    this.player.variations.push(this.player.direction);
+    this.player.variations.add(this.player.direction);
     this.grid.update(this.player.row, this.player.column, this.player);
 
     const getDirectionOf = (key: string) => Direction[key.toUpperCase() as keyof typeof Direction];
@@ -84,14 +89,27 @@ class PlayerRenderer {
     setInterval(() => {
       this.grid.remove(this.player.row, this.player.column);
 
-      const previousDirection = getDirectionOf(this.player.variations[0]);
+      const previousDirection = getDirectionOf(Array.from(this.player.variations)[0]);
       const nextDirection = getDirectionOf(this.player.direction);
 
       this.player.direction = previousDirection;
-      this.player.move();
+      if (this.grid.canTraverse(...this.player.nextPosition())) {
+        this.player.move();
+      }
 
       this.player.direction = nextDirection;
-      this.player.variations = [nextDirection];
+      if (this.grid.canTraverse(...this.player.nextPosition())) {
+        this.player.variations.delete("stopped");
+        this.player.variations.delete(previousDirection);
+        this.player.variations.add(nextDirection);
+      } else {
+        this.player.direction = previousDirection;
+        if (!this.grid.canTraverse(...this.player.nextPosition())) {
+          this.player.variations.add("stopped");
+        }
+
+        this.player.direction = nextDirection;
+      }
 
       this.grid.update(this.player.row, this.player.column, this.player);
     }, this.animationTimeout);

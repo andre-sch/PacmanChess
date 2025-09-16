@@ -78,6 +78,7 @@ html, body, #app {
   animation-fill-mode: forwards;
 }
 
+.cell.player.stopped::after { animation-play-state: paused; }
 .cell.player.right::after { animation-name: moveRight }
 .cell.player.left::after { animation-name: moveLeft; scale: -1 1; }
 .cell.player.up::after { animation-name: moveUp }

@@ -45,6 +45,15 @@ class Grid {
     ];
   }
 
+  public canTraverse(row: number, column: number): boolean {
+    return (
+      0 <= row && row < this.numberOfRows &&
+      0 <= column && column < this.numberOfColumns &&
+      (this.elements[row][column] == null ||
+      this.elements[row][column].traversable == true)
+    );
+  }
+
   public remove(row: number, column: number): GameObject | null {
     const element = this.elements[row][column];
     this.update(row, column, null);

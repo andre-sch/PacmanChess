@@ -7,6 +7,7 @@ class Hole extends GameObject {
     public column: number,
   ) {
     super("hole");
+    this.traversable = false;
   }
 }
 
