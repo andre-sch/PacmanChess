@@ -80,10 +80,15 @@ html, body, #app {
   animation-fill-mode: forwards;
 }
 
+.cell.player.transforming::after {
+  animation-name: rubberBand !important;
+  animation-play-state: running !important;
+  animation-delay: 0s;
+}
+
 .cell.player.promoted::after {
   background-image: url("/assets/white-rook.png");
   animation-timing-function: linear;
-  /* todo: add animation for promotion transition */
 }
 
 .cell.player.stopped::after { animation-play-state: paused; }
@@ -97,6 +102,16 @@ html, body, #app {
 .cell.player:not(.promoted).left::after { animation-name: pawnMoveLeft; scale: -1 1; }
 .cell.player:not(.promoted).up::after { animation-name: pawnMoveUp }
 .cell.player:not(.promoted).down::after { animation-name: pawnMoveDown }
+
+@keyframes rubberBand {
+  0% { transform: scale(1, 1); }
+  30% { transform: scale(1.25, 0.75); }
+  40% { transform: scale(0.75, 1.25); }
+  50% { transform: scale(1.15, 0.85); }
+  65% { transform: scale(0.95, 1.05); }
+  75% { transform: scale(1.05, 0.95); }
+  100% { transform: scale(1, 1); }
+}
 
 @keyframes rookMoveRight {
   100% { left: 150%; }

@@ -46,7 +46,6 @@ class Player extends GameObject {
     public row: number = 0,
     public column: number = 0,
     public direction: Direction = Direction.RIGHT,
-    public promoted: boolean = false,
     public score: number = 0,
     options?: { eventPublisher: PlayerEventPublisher }
   ) {
@@ -130,7 +129,8 @@ class PlayerRenderer {
 
     setInterval(() => {
       count++;
-      if (this.player.promoted || count % iterations == 1) {
+      if (this.player.variations.has("promoted") || count % iterations == 1) {
+        if (this.player.variations.has("transforming")) return;
         this.grid.remove(this.player.row, this.player.column);
 
         const previousDirectionKey = Array.from(this.player.variations).toString().match(/up|down|left|right/)![0];
@@ -140,9 +140,6 @@ class PlayerRenderer {
         this.player.direction = previousDirection;
         if (this.grid.canTraverse(...this.player.nextPosition())) {
           this.player.move();
-          if (this.player.promoted) {
-            this.player.variations.add("promoted");
-          } else this.player.variations.delete("promoted");
         }
 
         this.player.direction = nextDirection;
