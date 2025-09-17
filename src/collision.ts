@@ -24,25 +24,25 @@ class CollisionHandler implements PlayerSubscriber {
     }`);
   }
 
-  public async update(movement: PlayerMovement): Promise<void> {
-    const [nextRow, nextColumn] = movement.nextPosition;
+  public async update(context: PlayerMovement): Promise<void> {
+    const [nextRow, nextColumn] = context.nextPosition;
     const object = this.grid.elements[nextRow][nextColumn];
     if (object == null) return;
 
     if (object.type == "pellet") {
-      movement.agent.score += 50;
-      movement.agent.variations.add("promoted");
-      this.transform(movement.agent);
+      context.agent.score += 50;
+      context.agent.variations.add("promoted");
+      this.transform(context.agent);
 
       clearTimeout(this.lastPromotion);
       this.lastPromotion = setTimeout(() => {
-        movement.agent.variations.delete("promoted");
-        this.transform(movement.agent);
+        context.agent.variations.delete("promoted");
+        this.transform(context.agent);
       }, this.promotionDuration * 1000);
     }
 
     if (object.type == "dot") {
-      movement.agent.score += 10;
+      context.agent.score += 10;
     }
   }
 
