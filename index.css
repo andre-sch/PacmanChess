@@ -19,6 +19,7 @@ html, body, #app {
 }
 
 #grid {
+  width: 100%;
   background: hsl(227, 76%, 45%);
 }
 
@@ -28,6 +29,7 @@ html, body, #app {
   align-items: center;
   position: relative;
   background: #fff;
+  aspect-ratio: 1;
 }
 
 .cell:nth-child(even) {
@@ -71,7 +73,7 @@ html, body, #app {
   bottom: 0%;
   left: 50%;
   translate: -50% 0;
-  height: 2.5rem;
+  height: 125%;
   aspect-ratio: 2/3;
   background-image: url("/assets/white-pawn.png");
   background-repeat: no-repeat;

@@ -87,8 +87,9 @@ class GridRenderer implements GridSubscriber {
     gridElement = document.createElement("div");
     gridElement.id = "grid";
     gridElement.style.display = "grid";
-    gridElement.style.gridTemplateColumns = `repeat(${this.grid.numberOfColumns}, ${props.tileSize}px)`;
-    gridElement.style.gridTemplateRows = `repeat(${this.grid.numberOfRows}, ${props.tileSize}px)`;
+    gridElement.style.maxWidth = (this.grid.numberOfColumns * props.tileSize + (this.grid.numberOfColumns - 1) * props.gapSize) + "px";
+    gridElement.style.maxHeight = (this.grid.numberOfRows * props.tileSize + (this.grid.numberOfRows - 1) * props.gapSize) + "px";
+    gridElement.style.gridTemplateColumns = `repeat(${this.grid.numberOfColumns}, 1fr)`;
     gridElement.style.gap = `${props.gapSize}px`;
 
     for (let i = 0; i < this.grid.numberOfRows; i++) {
