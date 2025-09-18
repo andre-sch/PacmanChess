@@ -45,6 +45,20 @@ class Grid {
     ];
   }
 
+  public inBounds(row: number, column: number): boolean {
+    return (
+      0 <= row && row < this.numberOfRows &&
+      0 <= column && column < this.numberOfColumns
+    );
+  }
+
+  public notOnEdge(row: number, column: number): boolean {
+    return (
+      0 < row && row < this.numberOfRows - 1 &&
+      0 < column && column < this.numberOfColumns - 1
+    );
+  }
+
   public canTraverse(row: number, column: number): boolean {
     return (
       0 <= row && row < this.numberOfRows &&
