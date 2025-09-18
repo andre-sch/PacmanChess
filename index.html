@@ -5,10 +5,27 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Pacman v2</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <header>
+        <div id="chronometer">
+          <svg id="clock" width="19" height="21" viewBox="0 0 19 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path stroke="hsl(227, 76%, 54%)" stroke-width="2.25" d="M9 14.5714V7.42859" id="clock-hand" />
+            <path stroke="hsl(227, 76%, 54%)" stroke-width="2.25" d="M5.56372 2.07141H12.4107"/>
+            <path stroke="hsl(227, 76%, 54%)" stroke-width="2.5" d="M17.8819 7.38562L15.2637 8.87852"/>
+            <path fill="hsl(227, 76%, 54%)" d="M8.98725 4.00452C13.7141 4.00452 17.546 7.7891 17.546 12.4577C17.546 17.1261 13.7141 20.9107 8.98725 20.9107C4.26036 20.9107 0.428467 17.1261 0.428467 12.4577C0.428467 7.7891 4.26036 4.00452 8.98725 4.00452ZM8.98725 6.25868C5.52086 6.25868 2.71081 9.03402 2.71081 12.4577C2.71081 15.8812 5.52086 18.6566 8.98725 18.6566C12.4537 18.6566 15.2637 15.8812 15.2637 12.4577C15.2637 9.03402 12.4537 6.25868 8.98725 6.25868Z" />
+          </svg>
+          <span>00:00</span>
+        </div>
+        <span id="score"></span>
+      </header>
+      <main></main>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

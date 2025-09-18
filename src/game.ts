@@ -2,8 +2,9 @@ import { Player, PlayerController, PlayerEventPublisher, PlayerRenderer } from "
 import { Grid, GridEventPublisher, GridRenderer } from "./grid";
 import { Maze } from "./maze";
 import { CollisionHandler } from "./collision";
+import { GameMetadata } from "./metadata";
 
-const container = document.getElementById("app") as HTMLDivElement;
+const container = document.querySelector("main") as HTMLElement;
 
 function startGame(): void {
   /* Grid config */
@@ -33,6 +34,7 @@ function startGame(): void {
   playerRenderer.render();
 
   player.eventPublisher = new PlayerEventPublisher();
+  player.eventPublisher.subscribe(new GameMetadata({ grid, tileSize, gapSize }));
   player.eventPublisher.subscribe(new CollisionHandler(grid));
 
   /* Maze config */
