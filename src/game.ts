@@ -10,8 +10,8 @@ function startGame(): void {
   const tileSize = 32;
   const gapSize = 2;
 
-  let numberOfRows = Math.floor((container.clientHeight + gapSize) / (tileSize + gapSize));
-  let numberOfColumns = Math.floor((container.clientWidth + gapSize) / (tileSize + gapSize));
+  let numberOfRows = Math.min(20, Math.floor((container.clientHeight + gapSize) / (tileSize + gapSize)));
+  let numberOfColumns = Math.min(23, Math.floor((container.clientWidth + gapSize) / (tileSize + gapSize)));
   if (numberOfColumns % 2 == 0) numberOfColumns--;
 
   const grid = new Grid(numberOfRows, numberOfColumns);
