@@ -126,7 +126,7 @@ class Maze {
   private eligibleNeighbor(row: number, column: number) {
     return (
       this.grid.elements[row][column] == null &&
-      this.grid.notOnEdge(row, column) &&
+      !this.grid.onEdge(row, column) &&
       this.neighborsOf(row, column).every(adjacent =>
         !this.holes.has(adjacent.row, adjacent.column))
     );

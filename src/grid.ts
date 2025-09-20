@@ -52,10 +52,10 @@ class Grid {
     );
   }
 
-  public notOnEdge(row: number, column: number): boolean {
+  public onEdge(row: number, column: number): boolean {
     return (
-      0 < row && row < this.numberOfRows - 1 &&
-      0 < column && column < this.numberOfColumns - 1
+      row == 0 || row == this.numberOfRows - 1 ||
+      column == 0 || column == this.numberOfColumns - 1
     );
   }
 
