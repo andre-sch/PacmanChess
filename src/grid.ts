@@ -45,6 +45,11 @@ class Grid {
     ];
   }
 
+  public get topLeft(): [number, number] { return [0, 0]; }
+  public get topRight(): [number, number] { return [0, this.numberOfColumns - 1]; }
+  public get bottomLeft(): [number, number] { return [this.numberOfRows - 1, 0]; }
+  public get bottomRight(): [number, number] { return [this.numberOfRows - 1, this.numberOfColumns - 1]; }
+
   public inBounds(row: number, column: number): boolean {
     return (
       0 <= row && row < this.numberOfRows &&
@@ -82,6 +87,50 @@ class Grid {
 
     this.elements[row][column] = value;
     this.eventPublisher?.publishUpdate(row, column);
+  }
+
+  public generateSpacedPoints(n: number, options?: { centerRadius: number }): [number, number][] {
+    const centerRadius = options?.centerRadius || 0;
+
+    const k = Math.ceil(Math.sqrt(n));
+    const blockRows = Math.ceil(this.numberOfRows / k);
+    const blockColumns = Math.ceil(this.numberOfColumns / k);
+
+    const blocks: { row: number; column: number }[] = [];
+    for (let i = 0; i < this.numberOfRows; i += blockRows) {
+      for (let j = 0; j < this.numberOfColumns; j += blockColumns) {
+        blocks.push({ row: i, column: j });
+      }
+    }
+
+    // shuffle
+    for (let i = blocks.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [blocks[i], blocks[j]] = [blocks[j], blocks[i]];
+    }
+
+    const chosenBlocks = blocks.slice(0, n);
+
+    const center = this.center;
+    const points: [number, number][] = [];
+    for (const block of chosenBlocks) {
+      let row, column: number;
+      do {
+        row = block.row + Math.floor(Math.random() * blockRows);
+        column = block.column + Math.floor(Math.random() * blockColumns);
+      } while (
+        !this.inBounds(row, column) ||
+        this.elements[row][column] != null ||
+        Math.hypot(row - center[0], column - center[1]) <= centerRadius
+      );
+
+      points.push([
+        Math.min(row, this.numberOfRows - 1),
+        Math.min(column, this.numberOfColumns - 1)
+      ]);
+    }
+
+    return points;
   }
 }
 

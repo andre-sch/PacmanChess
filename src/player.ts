@@ -1,5 +1,6 @@
+import { Grid } from "./grid";
 import { GameObject } from "./gameObject";
-import type { Grid } from "./grid";
+import { Direction } from "./direction";
 
 interface PlayerMovement {
   agent: Player;
@@ -21,13 +22,6 @@ class PlayerEventPublisher {
   public publishUpdate(agent: Player, previousPosition: [number, number], nextPosition: [number, number]) {
     this.subscribers.forEach(subscriber => subscriber.update({ agent, previousPosition, nextPosition }));
   }
-}
-
-enum Direction {
-  UP = "up",
-  DOWN = "down",
-  LEFT = "left",
-  RIGHT = "right"
 }
 
 class Player extends GameObject {

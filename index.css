@@ -115,7 +115,8 @@ html, body, #app {
   border: 3px solid #fff;
 }
 
-.cell.player::after {
+.cell.player::after,
+.cell.enemy::after {
   content: "";
   position: absolute;
   z-index: 1;
@@ -131,28 +132,33 @@ html, body, #app {
   animation-fill-mode: forwards;
 }
 
-.cell.player.transforming::after {
-  animation-name: rubberBand !important;
-  animation-play-state: running !important;
-  animation-delay: 0s;
-}
+.cell.enemy.blinky::after { background-image: url("/assets/black-pawn-blinky.png"); }
+.cell.enemy.inky::after { background-image: url("/assets/black-pawn-inky.png"); }
+.cell.enemy.pinky::after { background-image: url("/assets/black-pawn-pinky.png"); }
+.cell.enemy.clyde::after { background-image: url("/assets/black-pawn-clyde.png"); }
 
 .cell.player.promoted::after {
   background-image: url("/assets/white-rook.png");
   animation-timing-function: linear;
 }
 
-.cell.player.stopped::after { animation-play-state: paused; }
+.cell.player.transforming::after {
+  animation-name: rubberBand !important;
+  animation-play-state: running !important;
+  animation-delay: 0s;
+}
+
+.cell.stopped::after { animation-play-state: paused; }
 
 .cell.player.promoted.right::after { animation-name: rookMoveRight; }
 .cell.player.promoted.left::after { animation-name: rookMoveLeft; scale: -1 1; }
 .cell.player.promoted.up::after { animation-name: rookMoveUp; }
 .cell.player.promoted.down::after { animation-name: rookMoveDown; }
 
-.cell.player:not(.promoted).right::after { animation-name: pawnMoveRight }
-.cell.player:not(.promoted).left::after { animation-name: pawnMoveLeft; scale: -1 1; }
-.cell.player:not(.promoted).up::after { animation-name: pawnMoveUp }
-.cell.player:not(.promoted).down::after { animation-name: pawnMoveDown }
+.cell:not(.promoted).right::after { animation-name: pawnMoveRight }
+.cell:not(.promoted).left::after { animation-name: pawnMoveLeft; scale: -1 1; }
+.cell:not(.promoted).up::after { animation-name: pawnMoveUp }
+.cell:not(.promoted).down::after { animation-name: pawnMoveDown }
 
 @keyframes rubberBand {
   0% { transform: scale(1, 1); }

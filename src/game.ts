@@ -1,5 +1,6 @@
-import { Player, PlayerController, PlayerEventPublisher, PlayerRenderer } from "./player";
 import { Grid, GridEventPublisher, GridRenderer } from "./grid";
+import { Player, PlayerController, PlayerEventPublisher, PlayerRenderer } from "./player";
+import { EnemyRenderer, Enemy, Blinky, Inky, Pinky, Clyde } from "./enemy";
 import { Maze } from "./maze";
 import { CollisionHandler } from "./collision";
 import { GameMetadata } from "./metadata";
@@ -36,6 +37,27 @@ function startGame(): void {
   player.eventPublisher = new PlayerEventPublisher();
   player.eventPublisher.subscribe(new GameMetadata({ grid, tileSize, gapSize }));
   player.eventPublisher.subscribe(new CollisionHandler(grid));
+
+  /* Enemies config */
+  const gameContext = { grid, player, enemies: new Map<string, Enemy>() };
+
+  const blinky = new Blinky(gameContext);
+  const inky = new Inky(gameContext);
+  const pinky = new Pinky(gameContext);
+  const clyde = new Clyde(gameContext);
+
+  blinky.variations.add("blinky")
+  inky.variations.add("inky")
+  pinky.variations.add("pinky")
+  clyde.variations.add("clyde")
+
+  gameContext.enemies.set("blinky", blinky);
+  gameContext.enemies.set("inky", inky);
+  gameContext.enemies.set("pinky", pinky);
+  gameContext.enemies.set("clyde", clyde);
+
+  const enemyRenderer = new EnemyRenderer(grid);
+  enemyRenderer.render(blinky, inky, pinky, clyde);
 
   /* Maze config */
   const maze = new Maze(grid);

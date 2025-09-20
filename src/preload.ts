@@ -13,6 +13,10 @@ function preloadImages(urls: string[]): Promise<HTMLImageElement[]> {
 }
 
 const assetsQuery = preloadImages([
+  "/assets/black-pawn-blinky.png",
+  "/assets/black-pawn-inky.png",
+  "/assets/black-pawn-pinky.png",
+  "/assets/black-pawn-clyde.png",
   "/assets/white-pawn.png",
   "/assets/white-rook.png"
 ]);
