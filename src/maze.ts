@@ -1,6 +1,6 @@
 import { GameObject } from "./gameObject";
 import { Grid } from "./grid";
-import type { Player } from "./player";
+import { Player } from "./player";
 
 class Hole extends GameObject {
   constructor(
@@ -50,10 +50,10 @@ class Maze {
   }
 
   public generate(props: { player: Player }): void {
-    this.grid.update(...props.player.nextPosition(), new Dot());
+    this.grid.add(...props.player.nextPosition(), new Dot());
 
     this.generateHoles();
-    this.generateDots();
+    this.generateDots({ player: props.player });
   }
 
   private generateHoles(): void {
@@ -72,7 +72,7 @@ class Maze {
       while (groupOfHoles.length < holeSize) {
         const holeOptions = [...groupOfHoles];
 
-        let neighbor: GameObject | null | undefined;
+        let neighbor: GameObject | undefined | null = null;
         do {
           let index = Math.floor(Math.random() * holeOptions.length);
           const hole = holeOptions.splice(index, 1)[0];
@@ -86,29 +86,29 @@ class Maze {
 
             row = point.row;
             column = point.column;
-            neighbor = this.grid.elements[row][column];
+            neighbor = this.grid.elements[row][column][0];
           }
-        } while (neighbor != null && holeOptions.length > 0);
+        } while (neighbor != undefined && holeOptions.length > 0);
 
-        if (neighbor != null) break;
+        if (neighbor != undefined) break;
         groupOfHoles.push(new Hole(row, column));
       }
 
       for (const hole of groupOfHoles) {
         this.holes.add(hole.row, hole.column);
-        this.grid.update(hole.row, hole.column, hole);
+        this.grid.add(hole.row, hole.column, hole);
       }
     }
   }
 
-  private generateDots(): void {
+  private generateDots(props: { player: Player }): void {
     const coordinatesOfDots: [number, number][] = [];
     for (let row = 0; row < this.grid.numberOfRows; row++) {
       for (let column = 0; column < this.grid.numberOfColumns; column++) {
-        const object = this.grid.elements[row][column];
+        if (row == props.player.row && column == props.player.column) continue;
 
-        if (object == null) {
-          this.grid.update(row, column, new Dot());
+        if (this.grid.canTraverse(row, column)) {
+          this.grid.add(row, column, new Dot());
           coordinatesOfDots.push([row, column]);
         }
       }
@@ -119,13 +119,13 @@ class Maze {
 
     for (let i = 0; i < numberOfPellets; i++) {
       const [row, column] = coordinatesOfDots[(i+1) * range];
-      this.grid.update(row, column, new Pellet());
+      this.grid.add(row, column, new Pellet());
     }
   }
 
   private eligibleNeighbor(row: number, column: number) {
     return (
-      this.grid.elements[row][column] == null &&
+      this.grid.elements[row][column].length == 0 &&
       !this.grid.onEdge(row, column) &&
       this.neighborsOf(row, column).every(adjacent =>
         !this.holes.has(adjacent.row, adjacent.column))
@@ -136,9 +136,9 @@ class Maze {
     const neighbors: { row: number; column: number; }[] = [...this.orthogonalNeighborsOf(row, column)];
     const diagonal = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
 
-    for (const [dx, dy] of diagonal) {
-      const neighborRow = row + dx;
-      const neighborColumn = column + dy;
+    for (const [rowDelta, columnDelta] of diagonal) {
+      const neighborRow = row + rowDelta;
+      const neighborColumn = column + columnDelta;
 
       if (this.grid.inBounds(neighborRow, neighborColumn)) {
         neighbors.push({ row: neighborRow, column: neighborColumn });
@@ -152,9 +152,9 @@ class Maze {
     const neighbors: { row: number; column: number; }[] = [];
     const orthogonal = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
-    for (const [dx, dy] of orthogonal) {
-      const neighborRow = row + dx;
-      const neighborColumn = column + dy;
+    for (const [rowDelta, columnDelta] of orthogonal) {
+      const neighborRow = row + rowDelta;
+      const neighborColumn = column + columnDelta;
 
       if (this.grid.inBounds(neighborRow, neighborColumn)) {
         neighbors.push({ row: neighborRow, column: neighborColumn });

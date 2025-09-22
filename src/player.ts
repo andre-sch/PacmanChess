@@ -114,7 +114,7 @@ class PlayerRenderer {
 
   public render() {
     this.player.variations.add(this.player.direction);
-    this.grid.update(this.player.row, this.player.column, this.player);
+    this.grid.add(this.player.row, this.player.column, this.player);
 
     const getDirectionOf = (key: string) => Direction[key.toUpperCase() as keyof typeof Direction];
 
@@ -125,7 +125,7 @@ class PlayerRenderer {
       count++;
       if (this.player.variations.has("promoted") || count % iterations == 1) {
         if (this.player.variations.has("transforming")) return;
-        this.grid.remove(this.player.row, this.player.column);
+        this.grid.remove(this.player.row, this.player.column, this.player);
 
         const previousDirectionKey = Array.from(this.player.variations).toString().match(/up|down|left|right/)![0];
         const previousDirection = getDirectionOf(previousDirectionKey);
@@ -150,7 +150,7 @@ class PlayerRenderer {
           this.player.direction = nextDirection;
         }
 
-        this.grid.update(this.player.row, this.player.column, this.player);
+        this.grid.add(this.player.row, this.player.column, this.player);
       }
     }, this.animationTimeout / iterations);
   }

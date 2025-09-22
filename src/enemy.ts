@@ -302,10 +302,10 @@ class EnemyRenderer {
   public render(...enemies: Enemy[]) {
     enemies.forEach(enemy => {
       enemy.variations.add(enemy.direction);
-      this.grid.update(enemy.row, enemy.column, enemy);
+      this.grid.add(enemy.row, enemy.column, enemy);
 
       setInterval(() => {
-        this.grid.remove(enemy.row, enemy.column);
+        this.grid.remove(enemy.row, enemy.column, enemy);
 
         const previousDirectionKey = Array.from(enemy.variations).toString().match(/up|down|left|right/)![0];
         const previousDirection = Direction[previousDirectionKey.toUpperCase() as keyof typeof Direction];
@@ -328,7 +328,7 @@ class EnemyRenderer {
           enemy.direction = enemy.nextDirection();
         }
 
-        this.grid.update(enemy.row, enemy.column, enemy);
+        this.grid.add(enemy.row, enemy.column, enemy);
       }, this.animationTimeout);
     });
   }

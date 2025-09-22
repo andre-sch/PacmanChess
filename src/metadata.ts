@@ -37,14 +37,16 @@ class GameMetadata implements PlayerSubscriber {
 
   public update(context: PlayerMovement): void {
     const [nextRow, nextColumn] = context.nextPosition;
-    const object = this.grid.elements[nextRow][nextColumn];
-    if (object == null) return;
+    const elements = this.grid.elements[nextRow][nextColumn];
+    if (elements.length == 0) return;
 
-    if (object.type == "dot") {
+    const dot = elements.find(object => object.type == "dot");
+    if (dot) {
       this.score += 10;
     }
 
-    if (object.type == "pellet") {
+    const pellet = elements.find(object => object.type == "pellet");
+    if (pellet) {
       this.score += 50;
     }
 

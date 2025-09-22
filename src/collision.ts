@@ -26,12 +26,14 @@ class CollisionHandler implements PlayerSubscriber {
 
   public async update(context: PlayerMovement): Promise<void> {
     const [nextRow, nextColumn] = context.nextPosition;
-    const object = this.grid.elements[nextRow][nextColumn];
-    if (object == null) return;
+    const elements = this.grid.elements[nextRow][nextColumn];
+    if (elements.length == 0) return;
 
-    if (object.type == "pellet") {
+    const pellet = elements.find(object => object.type == "pellet");
+    if (pellet) {
       context.agent.score += 50;
       context.agent.variations.add("promoted");
+      this.grid.remove(nextRow, nextColumn, pellet);
       this.transform(context.agent);
 
       clearTimeout(this.lastPromotion);
@@ -41,8 +43,10 @@ class CollisionHandler implements PlayerSubscriber {
       }, this.promotionDuration * 1000);
     }
 
-    if (object.type == "dot") {
+    const dot = elements.find(object => object.type == "dot");
+    if (dot) {
       context.agent.score += 10;
+      this.grid.remove(nextRow, nextColumn, dot);
     }
   }
 

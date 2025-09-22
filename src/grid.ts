@@ -22,7 +22,7 @@ class GridEventPublisher {
 }
 
 class Grid {
-  public readonly elements: (GameObject | null)[][];
+  public readonly elements: GameObject[][][];
   public eventPublisher?: GridEventPublisher;
 
   constructor(
@@ -34,7 +34,7 @@ class Grid {
     this.eventPublisher = options?.eventPublisher;
 
     for (let i = 0; i < this.numberOfRows; i++) {
-      this.elements.push(Array(this.numberOfColumns).fill(null));
+      this.elements.push(Array.from({ length: this.numberOfColumns }, () => []));
     }
   }
 
@@ -66,27 +66,32 @@ class Grid {
 
   public canTraverse(row: number, column: number): boolean {
     return (
-      0 <= row && row < this.numberOfRows &&
-      0 <= column && column < this.numberOfColumns &&
-      (this.elements[row][column] == null ||
-      this.elements[row][column].traversable == true)
+      this.inBounds(row, column) &&
+      (this.elements[row][column].length == 0 ||
+      this.elements[row][column][0].traversable == true)
     );
   }
 
-  public remove(row: number, column: number): GameObject | null {
-    const element = this.elements[row][column];
-    this.update(row, column, null);
-    return element;
+  public add(row: number, column: number, object: GameObject): void {
+    if (!this.inBounds(row, column)) return;
+
+    const index = this.elements[row][column].findIndex(element => element.id == object.id);
+    if (index >= 0) this.elements[row][column].splice(index, 1, object);
+    else this.elements[row][column].unshift(object);
+
+    this.eventPublisher?.publishUpdate(row, column);
   }
 
-  public update(row: number, column: number, value: GameObject | null): void {
-    if (
-      row < 0 || this.numberOfRows <= row ||
-      column < 0 || this.numberOfColumns <= column
-    ) return;
+  public remove(row: number, column: number, object: GameObject): void {
+    const index = this.elements[row][column].findIndex(element => element.id == object.id);
+    this.elements[row][column].splice(index, 1);
 
-    this.elements[row][column] = value;
     this.eventPublisher?.publishUpdate(row, column);
+  }
+
+  public update(row: number, column: number, object: GameObject): void {
+    this.remove(row, column, object);
+    this.add(row, column, object);
   }
 
   public generateSpacedPoints(n: number, options?: { centerRadius: number }): [number, number][] {
@@ -174,7 +179,7 @@ class GridRenderer implements GridSubscriber {
 
     updatedElement.className = "cell";
 
-    const object = this.grid.elements[row][column];
+    const object = this.grid.elements[row][column][0];
     if (object) {
       updatedElement.classList.add(object.type);
 
