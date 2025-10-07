@@ -67,8 +67,7 @@ class Grid {
   public canTraverse(row: number, column: number): boolean {
     return (
       this.inBounds(row, column) &&
-      (this.elements[row][column].length == 0 ||
-      this.elements[row][column][0].traversable == true)
+      this.elements[row][column].every(object => object.traversable == true)
     );
   }
 
