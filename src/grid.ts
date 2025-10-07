@@ -84,9 +84,10 @@ class Grid {
 
   public remove(row: number, column: number, object: GameObject): void {
     const index = this.elements[row][column].findIndex(element => element.id == object.id);
-    this.elements[row][column].splice(index, 1);
-
-    this.eventPublisher?.publishUpdate(row, column);
+    if (index >= 0) {
+      this.elements[row][column].splice(index, 1);
+      this.eventPublisher?.publishUpdate(row, column);
+    }
   }
 
   public update(row: number, column: number, object: GameObject): void {
