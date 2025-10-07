@@ -1,6 +1,7 @@
 import { Grid, GridEventPublisher, GridRenderer } from "./grid";
-import { Player, PlayerController, PlayerEventPublisher, PlayerRenderer } from "./player";
+import { Player, PlayerController, PlayerRenderer } from "./player";
 import { EnemyRenderer, Enemy, Blinky, Inky, Pinky, Clyde } from "./enemy";
+import { AgentEventPublisher } from "./agent";
 import { Maze } from "./maze";
 import { CollisionHandler } from "./collision";
 import { GameMetadata } from "./metadata";
@@ -34,17 +35,17 @@ function startGame(): void {
   const playerRenderer = new PlayerRenderer(player, grid);
   playerRenderer.render();
 
-  player.eventPublisher = new PlayerEventPublisher();
-  player.eventPublisher.subscribe(new GameMetadata({ grid, tileSize, gapSize }));
-  player.eventPublisher.subscribe(new CollisionHandler(grid));
+  const playerEventPublisher = new AgentEventPublisher();
+  player.eventPublisher = playerEventPublisher;
 
   /* Enemies config */
   const gameContext = { grid, player, enemies: new Map<string, Enemy>() };
+  const enemyEventPublisher = new AgentEventPublisher();
 
-  const blinky = new Blinky(gameContext);
-  const inky = new Inky(gameContext);
-  const pinky = new Pinky(gameContext);
-  const clyde = new Clyde(gameContext);
+  const blinky = new Blinky(gameContext, { eventPublisher: enemyEventPublisher });
+  const inky = new Inky(gameContext, { eventPublisher: enemyEventPublisher });
+  const pinky = new Pinky(gameContext, { eventPublisher: enemyEventPublisher });
+  const clyde = new Clyde(gameContext, { eventPublisher: enemyEventPublisher });
 
   blinky.variations.add("blinky")
   inky.variations.add("inky")
@@ -58,6 +59,13 @@ function startGame(): void {
 
   const enemyRenderer = new EnemyRenderer(grid);
   enemyRenderer.render(blinky, inky, pinky, clyde);
+
+  /* Collision config */
+  const metadata = new GameMetadata({ grid, tileSize, gapSize });
+  const collisionHandler = new CollisionHandler({ metadata, grid, player, enemies: [blinky, inky, pinky, clyde] });
+
+  playerEventPublisher.subscribe(collisionHandler);
+  enemyEventPublisher.subscribe(collisionHandler);
 
   /* Maze config */
   const maze = new Maze(grid);

@@ -1,28 +1,7 @@
 import { Grid } from "./grid";
 import { GameObject } from "./gameObject";
 import { Direction } from "./direction";
-
-interface PlayerMovement {
-  agent: Player;
-  previousPosition: [number, number];
-  nextPosition: [number, number];
-}
-
-interface PlayerSubscriber {
-  update(context: PlayerMovement): void;
-}
-
-class PlayerEventPublisher {
-  private subscribers: PlayerSubscriber[] = [];
-
-  public subscribe(subscriber: PlayerSubscriber): void {
-    this.subscribers.push(subscriber);
-  }
-
-  public publishUpdate(agent: Player, previousPosition: [number, number], nextPosition: [number, number]) {
-    this.subscribers.forEach(subscriber => subscriber.update({ agent, previousPosition, nextPosition }));
-  }
-}
+import type { AgentEventPublisher } from "./agent";
 
 class Player extends GameObject {
   private movements: {
@@ -34,16 +13,21 @@ class Player extends GameObject {
     right: [0, 1]
   }
 
-  public eventPublisher?: PlayerEventPublisher;
+  public row: number;
+  public column: number;
+  public direction: Direction;
+  public eventPublisher?: AgentEventPublisher;
 
   constructor(
-    public row: number = 0,
-    public column: number = 0,
-    public direction: Direction = Direction.RIGHT,
-    public score: number = 0,
-    options?: { eventPublisher: PlayerEventPublisher }
+    private startRow: number = 0,
+    private startColumn: number = 0,
+    private startDirection: Direction = Direction.RIGHT,
+    options?: { eventPublisher: AgentEventPublisher }
   ) {
     super("player");
+    this.row = startRow;
+    this.column = startColumn;
+    this.direction = startDirection;
     this.eventPublisher = options?.eventPublisher;
   }
 
@@ -60,7 +44,17 @@ class Player extends GameObject {
     this.row = nextRow;
     this.column = nextColumn;
 
-    this.eventPublisher?.publishUpdate(this, previousPosition, nextPosition);
+    this.eventPublisher?.publishUpdate({
+      agent: this,
+      previousPosition,
+      nextPosition
+    });
+  }
+
+  public reset(): void {
+    this.row = this.startRow;
+    this.column = this.startColumn;
+    this.direction = this.startDirection;
   }
 }
 
@@ -156,14 +150,8 @@ class PlayerRenderer {
   }
 }
 
-export type {
-  PlayerMovement,
-  PlayerSubscriber
-}
-
 export {
   Player,
   PlayerController,
-  PlayerEventPublisher,
   PlayerRenderer
 };
