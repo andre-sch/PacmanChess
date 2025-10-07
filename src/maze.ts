@@ -102,10 +102,14 @@ class Maze {
   }
 
   private generateDots(props: { player: Player }): void {
+    const [nextRow, nextColumn] = props.player.nextPosition();
     const coordinatesOfDots: [number, number][] = [];
     for (let row = 0; row < this.grid.numberOfRows; row++) {
       for (let column = 0; column < this.grid.numberOfColumns; column++) {
-        if (row == props.player.row && column == props.player.column) continue;
+        if (
+          row == props.player.row && column == props.player.column ||
+          row == nextRow && column == nextColumn
+        ) continue;
 
         if (this.grid.canTraverse(row, column)) {
           this.grid.add(row, column, new Dot());
