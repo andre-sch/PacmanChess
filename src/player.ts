@@ -126,7 +126,10 @@ class PlayerRenderer {
         const nextDirection = getDirectionOf(this.player.direction);
 
         this.player.direction = previousDirection;
-        if (this.grid.canTraverse(...this.player.nextPosition())) {
+        if (
+          !this.player.variations.has("stopped") &&
+          this.grid.canTraverse(...this.player.nextPosition())
+        ) {
           this.player.move();
         }
 

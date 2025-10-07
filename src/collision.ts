@@ -88,6 +88,7 @@ class CollisionHandler implements AgentSubscriber {
 
   private async playerTransformation(): Promise<void> {
     this.player.variations.add("transforming");
+    this.player.variations.add("stopped");
     this.grid.update(this.player.row, this.player.column, this.player);
 
     await sleep(this.transformingDuration * 1000);
