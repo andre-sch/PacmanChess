@@ -174,17 +174,20 @@ class GridRenderer implements GridSubscriber {
 
   public update(context: GridUpdate): void {
     const { row, column } = context;
-    const updatedElement = document.querySelector(`.cell:nth-child(${row * this.grid.numberOfColumns + column + 1})`);
-    if (!updatedElement) throw new Error("Failed to update element");
+    const updatedCell = document.querySelector(`.cell:nth-child(${row * this.grid.numberOfColumns + column + 1})`);
+    if (!updatedCell) throw new Error("Failed to update element");
 
-    updatedElement.className = "cell";
-
+    updatedCell.innerHTML = "";
     for (const object of this.grid.elements[row][column]) {
-      updatedElement.classList.add(object.type);
+      const objectElement = document.createElement("div");
+
+      objectElement.classList.add(object.type);
 
       for (const variation of object.variations) {
-        updatedElement.classList.add(variation);
+        objectElement.classList.add(variation);
       }
+
+      updatedCell.appendChild(objectElement);
     }
   }
 }
