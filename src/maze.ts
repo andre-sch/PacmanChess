@@ -123,6 +123,10 @@ class Maze {
 
     for (let i = 0; i < numberOfPellets; i++) {
       const [row, column] = coordinatesOfDots[(i+1) * range];
+
+      const dot = this.grid.elements[row][column][0];
+      this.grid.remove(row, column, dot);
+
       this.grid.add(row, column, new Pellet());
     }
   }
