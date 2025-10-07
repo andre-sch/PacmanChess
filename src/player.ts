@@ -110,8 +110,6 @@ class PlayerRenderer {
     this.player.variations.add(this.player.direction);
     this.grid.add(this.player.row, this.player.column, this.player);
 
-    const getDirectionOf = (key: string) => Direction[key.toUpperCase() as keyof typeof Direction];
-
     let count = 0;
     const iterations = this.promotionSpeedRatio;
 
@@ -122,8 +120,8 @@ class PlayerRenderer {
         this.grid.remove(this.player.row, this.player.column, this.player);
 
         const previousDirectionKey = Array.from(this.player.variations).toString().match(/up|down|left|right/)![0];
-        const previousDirection = getDirectionOf(previousDirectionKey);
-        const nextDirection = getDirectionOf(this.player.direction);
+        const previousDirection = Direction[previousDirectionKey.toUpperCase() as keyof typeof Direction];
+        const nextDirection = this.player.direction;
 
         this.player.direction = previousDirection;
         if (
