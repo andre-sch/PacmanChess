@@ -111,7 +111,7 @@ html, body, #app {
   background: hsl(227, 76%, 56%);
 }
 
-.cell.dot::after {
+.cell.dot::before {
   display: block;
   content: "";
   width: 25%;
@@ -121,7 +121,7 @@ html, body, #app {
   border: 3px solid #fff;
 }
 
-.cell.pellet::after {
+.cell.pellet::before {
   display: block;
   content: "";
   width: 50%;

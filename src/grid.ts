@@ -179,8 +179,7 @@ class GridRenderer implements GridSubscriber {
 
     updatedElement.className = "cell";
 
-    const object = this.grid.elements[row][column][0];
-    if (object) {
+    for (const object of this.grid.elements[row][column]) {
       updatedElement.classList.add(object.type);
 
       for (const variation of object.variations) {
