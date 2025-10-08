@@ -55,6 +55,7 @@ class Player extends GameObject {
     this.row = this.startRow;
     this.column = this.startColumn;
     this.direction = this.startDirection;
+    this.variations.clear();
   }
 }
 

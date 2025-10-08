@@ -26,6 +26,7 @@ abstract class Enemy extends GameObject {
   private eventPublisher?: AgentEventPublisher;
 
   constructor(
+    public name: string,
     private startRow: number = 0,
     private startColumn: number = 0,
     private startDirection: Direction = Direction.RIGHT,
@@ -37,6 +38,7 @@ abstract class Enemy extends GameObject {
     this.column = startColumn;
     this.direction = startDirection;
     this.eventPublisher = options?.eventPublisher;
+    this.variations.add(this.name);
   }
 
   public abstract nextDirection(): Direction;
@@ -123,6 +125,8 @@ abstract class Enemy extends GameObject {
     this.row = this.startRow;
     this.column = this.startColumn;
     this.direction = this.startDirection;
+    this.variations.clear();
+    this.variations.add(this.name);
   }
 }
 
@@ -131,7 +135,7 @@ class Blinky extends Enemy {
   private safePoint: [number, number] | undefined;
 
   constructor(context: GameContext, options?: { eventPublisher: AgentEventPublisher }) {
-    super(...context.grid.topRight, Direction.DOWN, context, options);
+    super("blinky", ...context.grid.topRight, Direction.DOWN, context, options);
   }
 
   public nextDirection(): Direction {
@@ -162,7 +166,7 @@ class Inky extends Enemy {
   private safePoint: [number, number] | undefined;
 
   constructor(context: GameContext, options?: { eventPublisher: AgentEventPublisher }) {
-    super(...context.grid.bottomRight, Direction.LEFT, context, options);
+    super("inky", ...context.grid.bottomRight, Direction.LEFT, context, options);
   }
 
   public nextDirection(): Direction {
@@ -221,7 +225,7 @@ class Pinky extends Enemy {
   private safePoint: [number, number] | undefined;
 
   constructor(context: GameContext, options?: { eventPublisher: AgentEventPublisher }) {
-    super(...context.grid.topLeft, Direction.RIGHT, context, options);
+    super("pinky", ...context.grid.topLeft, Direction.RIGHT, context, options);
   }
 
   public nextDirection(): Direction {
@@ -264,7 +268,7 @@ class Clyde extends Enemy {
   private safePoint: [number, number] | undefined;
 
   constructor(context: GameContext, options?: { eventPublisher: AgentEventPublisher }) {
-    super(...context.grid.bottomLeft, Direction.UP, context, options);
+    super("clyde", ...context.grid.bottomLeft, Direction.UP, context, options);
   }
 
   public nextDirection(): Direction {

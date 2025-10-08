@@ -47,22 +47,17 @@ function startGame(): void {
   const pinky = new Pinky(gameContext, { eventPublisher: enemyEventPublisher });
   const clyde = new Clyde(gameContext, { eventPublisher: enemyEventPublisher });
 
-  blinky.variations.add("blinky")
-  inky.variations.add("inky")
-  pinky.variations.add("pinky")
-  clyde.variations.add("clyde")
-
-  gameContext.enemies.set("blinky", blinky);
-  gameContext.enemies.set("inky", inky);
-  gameContext.enemies.set("pinky", pinky);
-  gameContext.enemies.set("clyde", clyde);
+  const enemies = [blinky, inky, pinky, clyde];
+  for (const enemy of enemies) {
+    gameContext.enemies.set(enemy.name, enemy);
+  }
 
   const enemyRenderer = new EnemyRenderer(grid);
-  enemyRenderer.render(blinky, inky, pinky, clyde);
+  enemyRenderer.render(...enemies);
 
   /* Collision config */
   const metadata = new GameMetadata({ grid, tileSize, gapSize });
-  const collisionHandler = new CollisionHandler({ metadata, grid, player, enemies: [blinky, inky, pinky, clyde] });
+  const collisionHandler = new CollisionHandler({ metadata, grid, player, enemies });
 
   playerEventPublisher.subscribe(collisionHandler);
   enemyEventPublisher.subscribe(collisionHandler);

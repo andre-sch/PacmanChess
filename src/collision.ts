@@ -72,16 +72,31 @@ class CollisionHandler implements AgentSubscriber {
       context.agent.type == "player" && hitsEnemy ||
       context.agent.type == "enemy" && hitsPlayer
     ) {
-      this.metadata.lives--;
-      if (this.metadata.lives == 0) {
-        alert("Game ends");
-      }
+      if (this.player.variations.has("promoted")) {
+        for (const object of [...target, context.agent]) {
+          if (object.type == "enemy") {
+            const enemy = object as Enemy;
+            this.grid.remove(enemy.row, enemy.column, enemy);
+            this.metadata.score += 100;
 
-      for (const agent of [this.player, ...this.enemies]) {
-        this.grid.remove(agent.row, agent.column, agent);
+            enemy.reset();
+            enemy.variations.add(enemy.direction);
+            this.grid.add(enemy.row, enemy.column, enemy);
+          }
+        }
+      } else {
+        this.metadata.lives--;
+        if (this.metadata.lives == 0) {
+          alert("Game ends");
+        }
 
-        agent.reset();
-        this.grid.add(agent.row, agent.column, agent);
+        for (const agent of [this.player, ...this.enemies]) {
+          this.grid.remove(agent.row, agent.column, agent);
+
+          agent.reset();
+          agent.variations.add(agent.direction);
+          this.grid.add(agent.row, agent.column, agent);
+        }
       }
     }
   }
