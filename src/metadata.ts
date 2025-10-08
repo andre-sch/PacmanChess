@@ -2,16 +2,18 @@ import type { Grid } from "./grid";
 
 const container = document.querySelector("header") as HTMLElement;
 const chronometerElement = document.querySelector("#chronometer span") as HTMLSpanElement;
+const statusElement = document.querySelector("#status") as HTMLSpanElement;
 const scoreElement = document.querySelector("#score") as HTMLSpanElement;
 const livesContainer = document.querySelector("#lives") as HTMLDivElement;
 
 class GameMetadata {
   private readonly grid: Grid;
-  private readonly minLives: number = 0;
-  private readonly maxLives: number = 3;
+  public readonly minLives: number = 0;
+  public readonly maxLives: number = 3;
   private _lives: number = this.maxLives;
   private _seconds: number = 0;
   private _score: number = 0;
+  private _status: string = "";
 
   constructor(
     props: {
@@ -60,6 +62,12 @@ class GameMetadata {
     const livesLost = this.maxLives - this.lives;
     for (let i = 0; i < livesLost; i++) livesContainer.appendChild(emptyLife());
     for (let i = 0; i < this.lives; i++) livesContainer.appendChild(fullLife());
+  }
+
+  public get status() { return this._status; }
+  public set status(value: string) {
+    this._status = value;
+    statusElement.textContent = value;
   }
 }
 

@@ -117,7 +117,7 @@ class PlayerRenderer {
     setInterval(() => {
       count++;
       if (this.player.variations.has("promoted") || count % iterations == 1) {
-        if (this.player.variations.has("transforming")) return;
+        if (this.player.variations.has("waiting") || this.player.variations.has("transforming")) return;
         this.grid.remove(this.player.row, this.player.column, this.player);
 
         const previousDirectionKey = Array.from(this.player.variations).toString().match(/up|down|left|right/)![0];

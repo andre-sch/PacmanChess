@@ -333,6 +333,7 @@ class EnemyRenderer {
       this.grid.add(enemy.row, enemy.column, enemy);
 
       setInterval(() => {
+        if (enemy.variations.has("waiting")) return;
         this.grid.remove(enemy.row, enemy.column, enemy);
 
         const previousDirectionKey = Array.from(enemy.variations).toString().match(/up|down|left|right/)![0];

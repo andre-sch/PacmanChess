@@ -5,6 +5,10 @@ import type { Player } from "./player";
 import type { Enemy } from "./enemy";
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleepSync = (ms: number) => {
+  const end = Date.now() + ms;
+  while (Date.now() < end);
+};
 
 class CollisionHandler implements AgentSubscriber {
   private readonly grid: Grid;
@@ -13,6 +17,8 @@ class CollisionHandler implements AgentSubscriber {
   private readonly metadata: GameMetadata;
   private readonly transformingDuration: number;
   private readonly promotionDuration: number;
+  private readonly playerSleepDuration: number;
+  private readonly enemySleepDuration: number;
   private lastPromotion?: number;
 
   constructor(
@@ -23,6 +29,8 @@ class CollisionHandler implements AgentSubscriber {
       metadata: GameMetadata;
       transformingDuration?: number;
       promotionDuration?: number;
+      playerSleepDuration?: number;
+      enemySleepDuration?: number;
     }
   ) {
     this.grid = props.grid;
@@ -31,6 +39,8 @@ class CollisionHandler implements AgentSubscriber {
     this.metadata = props.metadata;
     this.transformingDuration = props.transformingDuration ?? 0.5;
     this.promotionDuration = props.promotionDuration ?? 8;
+    this.playerSleepDuration = props.playerSleepDuration ?? 3;
+    this.enemySleepDuration = props.enemySleepDuration ?? 5;
 
     const css = document.styleSheets[0];
     css.insertRule(`.player.transforming::after {
@@ -81,22 +91,44 @@ class CollisionHandler implements AgentSubscriber {
 
             enemy.reset();
             enemy.variations.add(enemy.direction);
-            this.grid.add(enemy.row, enemy.column, enemy);
+            this.sleepAgent(enemy, this.enemySleepDuration * 1000);
           }
         }
       } else {
         this.metadata.lives--;
         if (this.metadata.lives == 0) {
-          alert("Game ends");
-        }
+          this.metadata.status = "Game Over";
+        } else this.metadata.status = "Captured!";
 
-        for (const agent of [this.player, ...this.enemies]) {
-          this.grid.remove(agent.row, agent.column, agent);
+        setTimeout(() => {
+          sleepSync(1500);
 
-          agent.reset();
-          agent.variations.add(agent.direction);
-          this.grid.add(agent.row, agent.column, agent);
-        }
+          if (this.metadata.lives == 0) {
+            this.metadata.lives = this.metadata.maxLives;
+          }
+
+          for (const agent of [this.player, ...this.enemies]) {
+            this.grid.remove(agent.row, agent.column, agent);
+
+            agent.reset();
+            agent.variations.add(agent.direction);
+            this.sleepAgent(agent, this.playerSleepDuration * 1000);
+
+            let count = 3;
+            this.metadata.status = count.toString();
+            const clock = setInterval(() => {
+              count--;
+              if (count > 0) {
+                this.metadata.status = count.toString();
+              } else if (count == 0) {
+                this.metadata.status = "Go!"
+              } else {
+                this.metadata.status = "";
+                clearInterval(clock);
+              }
+            }, 1000);
+          }
+        });
       }
     }
   }
@@ -110,6 +142,17 @@ class CollisionHandler implements AgentSubscriber {
 
     this.player.variations.delete("transforming");
     this.grid.update(this.player.row, this.player.column, this.player);
+  }
+
+  private async sleepAgent(agent: Player | Enemy, ms: number): Promise<void> {
+    agent.variations.add("waiting");
+    this.player.variations.add("stopped");
+    this.grid.update(agent.row, agent.column, agent);
+
+    await sleep(ms);
+
+    agent.variations.delete("waiting");
+    this.grid.update(agent.row, agent.column, agent);
   }
 }
 

@@ -40,6 +40,7 @@ html, body, #app {
   display: flex;
   align-items: center;
   gap: 0.375rem;
+  width: 5rem;
 }
 
 #clock {
@@ -57,6 +58,10 @@ html, body, #app {
   50% { rotate: 180deg; }
   75% { rotate: 270deg; }
   100% { rotate: 360deg; }
+}
+
+#status {
+  text-align: center;
 }
 
 #app header > div:last-child {
@@ -172,7 +177,7 @@ html, body, #app {
   animation-delay: 0s;
 }
 
-.cell .stopped::after { animation-play-state: paused; }
+.cell .stopped:not(.waiting)::after { animation-play-state: paused; }
 
 .cell .player.promoted.right::after { animation-name: rookMoveRight; }
 .cell .player.promoted.left::after { animation-name: rookMoveLeft; scale: -1 1; }
@@ -183,6 +188,17 @@ html, body, #app {
 .cell :is(.enemy, .player:not(.promoted)).left::after { animation-name: pawnMoveLeft; scale: -1 1; }
 .cell :is(.enemy, .player:not(.promoted)).up::after { animation-name: pawnMoveUp }
 .cell :is(.enemy, .player:not(.promoted)).down::after { animation-name: pawnMoveDown }
+
+.cell .waiting::after {
+  animation-name: blink !important;
+  animation-duration: 3s !important;
+  animation-iteration-count: infinite !important;
+}
+
+@keyframes blink {
+  0%, 20%, 40%, 60%, 80%, 100% { filter: none; }
+  10%, 30%, 50%, 70%, 90% { filter: brightness(1.75); }
+}
 
 @keyframes rubberBand {
   0% { transform: scale(1, 1); }
