@@ -2,6 +2,7 @@ import type { Grid } from "./grid";
 import type { Maze } from "./maze";
 import type { GameMetadata } from "./metadata";
 import type { AgentMovement, AgentSubscriber } from "./agent";
+import type { GameObject } from "./gameObject";
 import type { Player } from "./player";
 import type { Enemy } from "./enemy";
 
@@ -77,8 +78,9 @@ class CollisionHandler implements AgentSubscriber {
       this.metadata.score += 10;
     }
 
-    const hitsEnemy = target.some(object => object.type == "enemy");
-    const hitsPlayer = target.some(object => object.type == "player");
+    const intangible = (object: GameObject) => object.variations.has("waiting");
+    const hitsEnemy = target.some(object => object.type == "enemy" && !intangible(object));
+    const hitsPlayer = target.some(object => object.type == "player") && !intangible(context.agent);
 
     if (
       context.agent.type == "player" && hitsEnemy ||
