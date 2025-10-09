@@ -26,26 +26,17 @@ class Pellet extends GameObject {
 
 class Maze {
   private grid: Grid;
-  private numberOfHoles: number;
-  private holes: SetOfHoles;
+  private holes: SetOfPoints;
   private minHole: number;
   private maxHole: number;
 
   constructor(
     grid: Grid,
-    options?: {
-      minHole: number,
-      maxHole: number,
-    }
+    options?: { minHole: number, maxHole: number }
   ) {
     this.grid = grid;
-
     this.minHole = options?.minHole || 2;
     this.maxHole = options?.maxHole || 5;
-
-    const averageHole = (this.minHole + this.maxHole) / 2;
-    const numberOfCells = grid.numberOfRows * grid.numberOfColumns;
-    this.numberOfHoles = Math.ceil((0.3 * numberOfCells) / averageHole);
   }
 
   public generate(props: { player: Player }): void {
@@ -55,16 +46,17 @@ class Maze {
     this.generateDots({ player: props.player });
   }
 
-  private generateHoles(): void {
-    this.holes = new SetOfHoles({ grid: this.grid });
+  private async generateHoles(): Promise<void> {
+    this.holes = new SetOfPoints({ grid: this.grid });
 
-    for (let i = 0; i < this.numberOfHoles; i++) {
-      let row, column: number;
+    while (true) {
+      const startPoints = this.eligibleStartPoints();
+      if (startPoints.length == 0) break;
 
-      do {
-        row = Math.floor(Math.random() * (this.grid.numberOfRows - 2)) + 1;
-        column = Math.floor(Math.random() * (this.grid.numberOfColumns - 2)) + 1;
-      } while (!this.eligibleNeighbor(row, column));
+      let index = Math.floor(Math.random() * startPoints.length);
+      let firstPoint = startPoints.splice(index, 1)[0];
+      let column = firstPoint.column;
+      let row = firstPoint.row;
 
       const groupOfHoles = [new Hole(row, column)];
 
@@ -75,11 +67,11 @@ class Maze {
 
         let neighbor: GameObject | undefined | null = null;
         do {
-          let index = Math.floor(Math.random() * holeOptions.length);
+          index = Math.floor(Math.random() * holeOptions.length);
           const hole = holeOptions.splice(index, 1)[0];
 
           const emptyPoints = this.orthogonalNeighborsOf(hole.row, hole.column)
-            .filter(neighbor => this.eligibleNeighbor(neighbor.row, neighbor.column));
+            .filter(neighbor => this.eligiblePoint(neighbor.row, neighbor.column));
 
           if (emptyPoints.length > 0) {
             index = Math.floor(Math.random() * emptyPoints.length);
@@ -132,33 +124,38 @@ class Maze {
     }
   }
 
-  private eligibleNeighbor(row: number, column: number) {
+  private eligibleStartPoints() {
+    const startPoints: Point[] = [];
+
+    for (let row = 0; row < this.grid.numberOfRows; row++) {
+      for (let column = 0; column < this.grid.numberOfColumns; column++) {
+        if (this.eligiblePoint(row, column)) {
+          startPoints.push({ row, column });
+        }
+      }
+    }
+
+    return startPoints;
+  }
+
+  private eligiblePoint(row: number, column: number) {
     return (
-      this.grid.elements[row][column].length == 0 &&
       !this.grid.onEdge(row, column) &&
-      this.neighborsOf(row, column).every(adjacent =>
-        !this.holes.has(adjacent.row, adjacent.column))
+      this.grid.elements[row][column].length == 0 &&
+      this.neighborsOf(row, column).every(neighbor =>
+        !this.holes.has(neighbor.row, neighbor.column))
     );
   }
 
   private neighborsOf(row: number, column: number) {
-    const neighbors: { row: number; column: number; }[] = [...this.orthogonalNeighborsOf(row, column)];
-    const diagonal = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
-
-    for (const [rowDelta, columnDelta] of diagonal) {
-      const neighborRow = row + rowDelta;
-      const neighborColumn = column + columnDelta;
-
-      if (this.grid.inBounds(neighborRow, neighborColumn)) {
-        neighbors.push({ row: neighborRow, column: neighborColumn });
-      }
-    }
-
-    return neighbors;
+    return [
+      ...this.orthogonalNeighborsOf(row, column),
+      ...this.diagonalNeighborsOf(row, column)
+    ];
   }
 
   private orthogonalNeighborsOf(row: number, column: number) {
-    const neighbors: { row: number; column: number; }[] = [];
+    const neighbors: Point[] = [];
     const orthogonal = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
     for (const [rowDelta, columnDelta] of orthogonal) {
@@ -172,11 +169,29 @@ class Maze {
 
     return neighbors;
   }
+
+  private diagonalNeighborsOf(row: number, column: number) {
+    const neighbors: Point[] = [];
+    const diagonal = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+
+    for (const [rowDelta, columnDelta] of diagonal) {
+      const neighborRow = row + rowDelta;
+      const neighborColumn = column + columnDelta;
+
+      if (this.grid.inBounds(neighborRow, neighborColumn)) {
+        neighbors.push({ row: neighborRow, column: neighborColumn });
+      }
+    }
+
+    return neighbors;
+  }
 }
 
-class SetOfHoles {
+type Point = { row: number, column: number };
+
+class SetOfPoints {
   private grid: Grid;
-  private holes: Map<number, [number, number]> = new Map();
+  private holes: Map<number, Point> = new Map();
 
   constructor(props: { grid: Grid }) {
     this.grid = props.grid;
@@ -187,11 +202,12 @@ class SetOfHoles {
   }
 
   public get(row: number, column: number): [number, number] | undefined {
-    return this.holes.get(this.encode(row, column));
+    const point = this.holes.get(this.encode(row, column));
+    return point ? [point.row, point.column] : undefined;
   }
 
   public add(row: number, column: number): void {
-    this.holes.set(this.encode(row, column), [row, column]);
+    this.holes.set(this.encode(row, column), { row, column });
   }
 
   private encode(row: number, column: number): number {

@@ -72,9 +72,9 @@ class Grid {
   }
 
   public clear(): void {
-    for (let i = 0; i < this.numberOfRows; i++) {
-      for (let j = 0; j < this.numberOfColumns; j++) {
-        this.elements[i][j] = [];
+    for (let row = 0; row < this.numberOfRows; row++) {
+      for (let column = 0; column < this.numberOfColumns; column++) {
+        this.elements[row][column] = [];
       }
     }
   }
