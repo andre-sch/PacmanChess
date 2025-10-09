@@ -71,6 +71,14 @@ class Grid {
     );
   }
 
+  public clear(): void {
+    for (let i = 0; i < this.numberOfRows; i++) {
+      for (let j = 0; j < this.numberOfColumns; j++) {
+        this.elements[i][j] = [];
+      }
+    }
+  }
+
   public add(row: number, column: number, object: GameObject): void {
     if (!this.inBounds(row, column)) return;
 

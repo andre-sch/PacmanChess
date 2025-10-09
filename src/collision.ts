@@ -1,4 +1,5 @@
 import type { Grid } from "./grid";
+import type { Maze } from "./maze";
 import type { GameMetadata } from "./metadata";
 import type { AgentMovement, AgentSubscriber } from "./agent";
 import type { Player } from "./player";
@@ -6,6 +7,7 @@ import type { Enemy } from "./enemy";
 
 class CollisionHandler implements AgentSubscriber {
   private readonly grid: Grid;
+  private readonly maze: Maze;
   private readonly player: Player;
   private readonly enemies: Enemy[];
   private readonly metadata: GameMetadata;
@@ -18,6 +20,7 @@ class CollisionHandler implements AgentSubscriber {
   constructor(
     props: {
       grid: Grid;
+      maze: Maze;
       player: Player;
       enemies: Enemy[];
       metadata: GameMetadata;
@@ -28,6 +31,7 @@ class CollisionHandler implements AgentSubscriber {
     }
   ) {
     this.grid = props.grid;
+    this.maze = props.maze;
     this.player = props.player;
     this.enemies = props.enemies;
     this.metadata = props.metadata;
@@ -104,6 +108,11 @@ class CollisionHandler implements AgentSubscriber {
 
           if (this.metadata.lives == 0) {
             this.metadata.lives = this.metadata.maxLives;
+
+            this.grid.clear();
+            this.player.reset();
+            this.grid.add(this.player.row, this.player.column, this.player);
+            this.maze.generate({ player: this.player });
           }
 
           for (const agent of [this.player, ...this.enemies]) {
@@ -111,6 +120,7 @@ class CollisionHandler implements AgentSubscriber {
 
             agent.reset();
             agent.variations.add(agent.direction);
+            this.grid.add(agent.row, agent.column, agent);
             this.sleepAgent(agent, this.playerSleepDuration);
           }
 

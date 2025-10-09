@@ -61,7 +61,7 @@ function startGame(): void {
 
   /* Collision config */
   const metadata = new GameMetadata({ grid, tileSize, gapSize });
-  const collisionHandler = new CollisionHandler({ metadata, grid, player, enemies });
+  const collisionHandler = new CollisionHandler({ metadata, grid, maze, player, enemies });
 
   playerEventPublisher.subscribe(collisionHandler);
   enemyEventPublisher.subscribe(collisionHandler);

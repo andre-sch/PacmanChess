@@ -57,6 +57,8 @@ class Maze {
   }
 
   private generateHoles(): void {
+    this.holes = new SetOfHoles({ grid: this.grid });
+
     for (let i = 0; i < this.numberOfHoles; i++) {
       let row, column: number;
 
