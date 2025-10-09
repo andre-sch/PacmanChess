@@ -39,7 +39,6 @@ class Maze {
     }
   ) {
     this.grid = grid;
-    this.holes = new SetOfHoles({ grid });
 
     this.minHole = options?.minHole || 2;
     this.maxHole = options?.maxHole || 5;
