@@ -29,6 +29,7 @@ class GameMetadata {
     this.seconds = 0;
     this.score = 0;
 
+    container.style.display = "flex";
     container.style.maxWidth =
       (this.grid.numberOfColumns * props.tileSize +
       (this.grid.numberOfColumns - 1) * props.gapSize) + "px";
