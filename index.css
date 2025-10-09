@@ -116,7 +116,7 @@ html, body, #app {
   height: 100%;
 }
 
-.cell .hole {
+.cell .obstacle {
   background: hsl(227, 76%, 56%);
 }
 

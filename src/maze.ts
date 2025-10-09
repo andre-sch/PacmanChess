@@ -2,12 +2,12 @@ import { GameObject } from "./gameObject";
 import { Grid } from "./grid";
 import { Player } from "./player";
 
-class Hole extends GameObject {
+class Obstacle extends GameObject {
   constructor(
     public row: number,
     public column: number,
   ) {
-    super("hole");
+    super("obstacle");
     this.traversable = false;
   }
 }
@@ -26,28 +26,28 @@ class Pellet extends GameObject {
 
 class Maze {
   private grid: Grid;
-  private holes: SetOfPoints;
-  private minHole: number;
-  private maxHole: number;
+  private obstacles: SetOfPoints;
+  private minObstacle: number;
+  private maxObstacle: number;
 
   constructor(
     grid: Grid,
-    options?: { minHole: number, maxHole: number }
+    options?: { minObstacle: number, maxObstacle: number }
   ) {
     this.grid = grid;
-    this.minHole = options?.minHole || 2;
-    this.maxHole = options?.maxHole || 5;
+    this.minObstacle = options?.minObstacle || 2;
+    this.maxObstacle = options?.maxObstacle || 5;
   }
 
   public generate(props: { player: Player }): void {
     this.grid.add(...props.player.nextPosition(), new Dot());
 
-    this.generateHoles();
+    this.generateObstacles();
     this.generateDots({ player: props.player });
   }
 
-  private async generateHoles(): Promise<void> {
-    this.holes = new SetOfPoints({ grid: this.grid });
+  private async generateObstacles(): Promise<void> {
+    this.obstacles = new SetOfPoints({ grid: this.grid });
 
     while (true) {
       const startPoints = this.eligibleStartPoints();
@@ -58,19 +58,18 @@ class Maze {
       let column = firstPoint.column;
       let row = firstPoint.row;
 
-      const groupOfHoles = [new Hole(row, column)];
+      const groupOfObstacles = [new Obstacle(row, column)];
+      const obstacleLength = Math.floor(Math.random() * (this.maxObstacle - this.minObstacle + 1)) + this.minObstacle;
 
-      const holeSize = Math.floor(Math.random() * (this.maxHole - this.minHole + 1)) + this.minHole;
-
-      while (groupOfHoles.length < holeSize) {
-        const holeOptions = [...groupOfHoles];
+      while (groupOfObstacles.length < obstacleLength) {
+        const availableObstacles = [...groupOfObstacles];
 
         let neighbor: GameObject | undefined | null = null;
         do {
-          index = Math.floor(Math.random() * holeOptions.length);
-          const hole = holeOptions.splice(index, 1)[0];
+          index = Math.floor(Math.random() * availableObstacles.length);
+          const obstacle = availableObstacles.splice(index, 1)[0];
 
-          const emptyPoints = this.orthogonalNeighborsOf(hole.row, hole.column)
+          const emptyPoints = this.orthogonalNeighborsOf(obstacle.row, obstacle.column)
             .filter(neighbor => this.eligiblePoint(neighbor.row, neighbor.column));
 
           if (emptyPoints.length > 0) {
@@ -81,15 +80,15 @@ class Maze {
             column = point.column;
             neighbor = this.grid.elements[row][column][0];
           }
-        } while (neighbor != undefined && holeOptions.length > 0);
+        } while (neighbor != undefined && availableObstacles.length > 0);
 
         if (neighbor != undefined) break;
-        groupOfHoles.push(new Hole(row, column));
+        groupOfObstacles.push(new Obstacle(row, column));
       }
 
-      for (const hole of groupOfHoles) {
-        this.holes.add(hole.row, hole.column);
-        this.grid.add(hole.row, hole.column, hole);
+      for (const obstacle of groupOfObstacles) {
+        this.obstacles.add(obstacle.row, obstacle.column);
+        this.grid.add(obstacle.row, obstacle.column, obstacle);
       }
     }
   }
@@ -143,7 +142,7 @@ class Maze {
       !this.grid.onEdge(row, column) &&
       this.grid.elements[row][column].length == 0 &&
       this.neighborsOf(row, column).every(neighbor =>
-        !this.holes.has(neighbor.row, neighbor.column))
+        !this.obstacles.has(neighbor.row, neighbor.column))
     );
   }
 
@@ -191,23 +190,23 @@ type Point = { row: number, column: number };
 
 class SetOfPoints {
   private grid: Grid;
-  private holes: Map<number, Point> = new Map();
+  private points: Map<number, Point> = new Map();
 
   constructor(props: { grid: Grid }) {
     this.grid = props.grid;
   }
 
   public has(row: number, column: number): boolean {
-    return this.holes.has(this.encode(row, column));
+    return this.points.has(this.encode(row, column));
   }
 
   public get(row: number, column: number): [number, number] | undefined {
-    const point = this.holes.get(this.encode(row, column));
+    const point = this.points.get(this.encode(row, column));
     return point ? [point.row, point.column] : undefined;
   }
 
   public add(row: number, column: number): void {
-    this.holes.set(this.encode(row, column), { row, column });
+    this.points.set(this.encode(row, column), { row, column });
   }
 
   private encode(row: number, column: number): number {
