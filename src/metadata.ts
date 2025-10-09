@@ -26,6 +26,7 @@ class GameMetadata {
   ) {
     this.grid = props.grid;
     this.lives = this.maxLives;
+    this.seconds = 0;
     this.score = 0;
 
     container.style.maxWidth =
@@ -37,7 +38,6 @@ class GameMetadata {
 
   public startClock(): void {
     let count = 3;
-    this.seconds = 0;
     this.status = "Ready";
 
     const countdown = setInterval(() => {
@@ -45,8 +45,7 @@ class GameMetadata {
         this.status = count.toString();
       } else if (count == 0) {
         this.status = "Go!";
-        this.clock = setInterval(() => this.seconds++, 1000);
-        chronometerHandElement.classList.add("running");
+        this.resumeClock();
       } else {
         this.status = "";
         clearInterval(countdown);
@@ -59,6 +58,11 @@ class GameMetadata {
   public pauseClock(): void {
     clearInterval(this.clock);
     chronometerHandElement.classList.remove("running");
+  }
+
+  public resumeClock(): void {
+    this.clock = setInterval(() => this.seconds++, 1000);
+    chronometerHandElement.classList.add("running");
   }
 
   public get seconds() { return this._seconds; }
