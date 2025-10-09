@@ -139,9 +139,9 @@ class PlayerRenderer {
           this.player.variations.add(nextDirection);
         } else {
           this.player.direction = previousDirection;
-          if (!this.grid.canTraverse(...this.player.nextPosition())) {
-            this.player.variations.add("stopped");
-          }
+          if (this.grid.canTraverse(...this.player.nextPosition())) {
+            this.player.variations.delete("stopped");
+          } else this.player.variations.add("stopped");
 
           this.player.direction = nextDirection;
         }

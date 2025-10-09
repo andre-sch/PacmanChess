@@ -339,7 +339,10 @@ class EnemyRenderer {
         const previousDirectionKey = Array.from(enemy.variations).toString().match(/up|down|left|right/)![0];
         const previousDirection = Direction[previousDirectionKey.toUpperCase() as keyof typeof Direction];
 
-        if (this.grid.canTraverse(...enemy.nextPosition())) {
+        if (
+          !enemy.variations.has("stopped") &&
+          this.grid.canTraverse(...enemy.nextPosition())
+        ) {
           enemy.move();
         }
 
@@ -350,9 +353,9 @@ class EnemyRenderer {
           enemy.variations.add(enemy.direction);
         } else {
           enemy.direction = previousDirection;
-          if (!this.grid.canTraverse(...enemy.nextPosition())) {
-            enemy.variations.add("stopped");
-          }
+          if (this.grid.canTraverse(...enemy.nextPosition())) {
+            enemy.variations.delete("stopped");
+          } else enemy.variations.add("stopped");
 
           enemy.direction = enemy.nextDirection();
         }
