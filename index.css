@@ -22,9 +22,10 @@ html, body, #app {
 }
 
 #app header {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: space-between;
+  visibility: hidden;
   width: 100%;
   padding-block: 0.5rem;
   font-family: "Montserrat", sans-serif;
