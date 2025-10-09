@@ -108,6 +108,7 @@ class CollisionHandler implements AgentSubscriber {
 
           if (this.metadata.lives == 0) {
             this.metadata.lives = this.metadata.maxLives;
+            this.metadata.score = 0;
 
             this.grid.clear();
             this.player.reset();

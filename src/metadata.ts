@@ -80,9 +80,8 @@ class GameMetadata {
   public get score() { return this._score; }
   public set score(value: number) {
     this._score = value;
-    if (this._score > 0) {
-      scoreElement.textContent = "+" + this._score;
-    }
+    if (this._score > 0) scoreElement.textContent = "+" + this._score;
+    else scoreElement.textContent = "";
   }
 
   public get lives() { return this._lives; }
