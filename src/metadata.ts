@@ -2,6 +2,7 @@ import type { Grid } from "./grid";
 
 const container = document.querySelector("header") as HTMLElement;
 const chronometerElement = document.querySelector("#chronometer span") as HTMLSpanElement;
+const chronometerHandElement = document.querySelector("#clock-hand") as HTMLDivElement;
 const statusElement = document.querySelector("#status") as HTMLSpanElement;
 const scoreElement = document.querySelector("#score") as HTMLSpanElement;
 const livesContainer = document.querySelector("#lives") as HTMLDivElement;
@@ -10,10 +11,11 @@ class GameMetadata {
   private readonly grid: Grid;
   public readonly minLives: number = 0;
   public readonly maxLives: number = 3;
-  private _lives: number = this.maxLives;
-  private _seconds: number = 0;
-  private _score: number = 0;
-  private _status: string = "";
+  private _lives: number;
+  private _status: string;
+  private _score: number;
+  private _seconds: number;
+  private clock: number;
 
   constructor(
     props: {
@@ -23,21 +25,52 @@ class GameMetadata {
     }
   ) {
     this.grid = props.grid;
+    this.lives = this.maxLives;
+    this.score = 0;
 
     container.style.maxWidth =
       (this.grid.numberOfColumns * props.tileSize +
       (this.grid.numberOfColumns - 1) * props.gapSize) + "px";
 
-    setInterval(() => {
-      this._seconds++;
+    this.startClock();
+  }
 
-      const template = (this._seconds >= 3600 ? "hh:mm:ss" : "mm:ss")
-        .replace("hh", this.formatUnit(this._seconds / 3600))
-        .replace("mm", this.formatUnit((this._seconds % 3600) / 60))
-        .replace("ss", this.formatUnit(this._seconds % 60));
+  public startClock(): void {
+    let count = 3;
+    this.seconds = 0;
+    this.status = "Ready";
 
-      chronometerElement.textContent = template;
+    const countdown = setInterval(() => {
+      if (count > 0) {
+        this.status = count.toString();
+      } else if (count == 0) {
+        this.status = "Go!";
+        this.clock = setInterval(() => this.seconds++, 1000);
+        chronometerHandElement.classList.add("running");
+      } else {
+        this.status = "";
+        clearInterval(countdown);
+      }
+
+      count--;
     }, 1000);
+  }
+
+  public pauseClock(): void {
+    clearInterval(this.clock);
+    chronometerHandElement.classList.remove("running");
+  }
+
+  public get seconds() { return this._seconds; }
+  public set seconds(value: number) {
+    this._seconds = value;
+
+    const template = (this._seconds >= 3600 ? "hh:mm:ss" : "mm:ss")
+      .replace("hh", this.formatUnit(this._seconds / 3600))
+      .replace("mm", this.formatUnit((this._seconds % 3600) / 60))
+      .replace("ss", this.formatUnit(this._seconds % 60));
+
+    chronometerElement.textContent = template;
   }
 
   private formatUnit(value: number): string {
@@ -47,7 +80,9 @@ class GameMetadata {
   public get score() { return this._score; }
   public set score(value: number) {
     this._score = value;
-    scoreElement.textContent = "+" + this._score;
+    if (this._score > 0) {
+      scoreElement.textContent = "+" + this._score;
+    }
   }
 
   public get lives() { return this._lives; }

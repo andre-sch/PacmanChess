@@ -48,10 +48,8 @@ html, body, #app {
   height: 1.5rem;
 }
 
-#clock-hand {
-  transform-origin: 9px 12.5px;
-  animation: clock 4s steps(1, end) infinite;
-}
+#clock-hand { transform-origin: 9px 12.5px; }
+#clock-hand.running { animation: clock 4s steps(1, end) infinite; }
 
 @keyframes clock {
   25% { rotate: 90deg; }

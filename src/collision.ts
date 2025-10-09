@@ -4,12 +4,6 @@ import type { AgentMovement, AgentSubscriber } from "./agent";
 import type { Player } from "./player";
 import type { Enemy } from "./enemy";
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-const sleepSync = (ms: number) => {
-  const end = Date.now() + ms;
-  while (Date.now() < end);
-};
-
 class CollisionHandler implements AgentSubscriber {
   private readonly grid: Grid;
   private readonly player: Player;
@@ -37,15 +31,19 @@ class CollisionHandler implements AgentSubscriber {
     this.player = props.player;
     this.enemies = props.enemies;
     this.metadata = props.metadata;
-    this.transformingDuration = props.transformingDuration ?? 0.5;
-    this.promotionDuration = props.promotionDuration ?? 8;
-    this.playerSleepDuration = props.playerSleepDuration ?? 3;
-    this.enemySleepDuration = props.enemySleepDuration ?? 5;
+    this.transformingDuration = props.transformingDuration ?? 500;
+    this.promotionDuration = props.promotionDuration ?? 8000;
+    this.playerSleepDuration = props.playerSleepDuration ?? 4000;
+    this.enemySleepDuration = props.enemySleepDuration ?? 5000;
 
     const css = document.styleSheets[0];
     css.insertRule(`.player.transforming::after {
-      animation-duration: ${this.transformingDuration}s !important;
+      animation-duration: ${this.transformingDuration}ms !important;
     }`);
+
+    for (const agent of [this.player, ...this.enemies]) {
+      this.sleepAgent(agent, this.playerSleepDuration);
+    }
   }
 
   public update(context: AgentMovement): void {
@@ -65,7 +63,7 @@ class CollisionHandler implements AgentSubscriber {
         this.lastPromotion = setTimeout(() => {
           this.player.variations.delete("promoted");
           this.playerTransformation();
-        }, this.promotionDuration * 1000);
+        }, this.promotionDuration);
       });
     }
 
@@ -91,7 +89,7 @@ class CollisionHandler implements AgentSubscriber {
 
             enemy.reset();
             enemy.variations.add(enemy.direction);
-            this.sleepAgent(enemy, this.enemySleepDuration * 1000);
+            this.sleepAgent(enemy, this.enemySleepDuration);
           }
         }
       } else {
@@ -100,7 +98,8 @@ class CollisionHandler implements AgentSubscriber {
           this.metadata.status = "Game Over";
         } else this.metadata.status = "Captured!";
 
-        setTimeout(() => {
+        afterPaint(() => {
+          this.metadata.pauseClock();
           sleepSync(1500);
 
           if (this.metadata.lives == 0) {
@@ -112,22 +111,10 @@ class CollisionHandler implements AgentSubscriber {
 
             agent.reset();
             agent.variations.add(agent.direction);
-            this.sleepAgent(agent, this.playerSleepDuration * 1000);
-
-            let count = 3;
-            this.metadata.status = count.toString();
-            const clock = setInterval(() => {
-              count--;
-              if (count > 0) {
-                this.metadata.status = count.toString();
-              } else if (count == 0) {
-                this.metadata.status = "Go!"
-              } else {
-                this.metadata.status = "";
-                clearInterval(clock);
-              }
-            }, 1000);
+            this.sleepAgent(agent, this.playerSleepDuration);
           }
+
+          this.metadata.startClock();
         });
       }
     }
@@ -138,7 +125,7 @@ class CollisionHandler implements AgentSubscriber {
     this.player.variations.add("stopped");
     this.grid.update(this.player.row, this.player.column, this.player);
 
-    await sleep(this.transformingDuration * 1000);
+    await sleep(this.transformingDuration);
 
     this.player.variations.delete("transforming");
     this.grid.update(this.player.row, this.player.column, this.player);
@@ -146,7 +133,7 @@ class CollisionHandler implements AgentSubscriber {
 
   private async sleepAgent(agent: Player | Enemy, ms: number): Promise<void> {
     agent.variations.add("waiting");
-    this.player.variations.add("stopped");
+    agent.variations.add("stopped");
     this.grid.update(agent.row, agent.column, agent);
 
     await sleep(ms);
@@ -154,6 +141,23 @@ class CollisionHandler implements AgentSubscriber {
     agent.variations.delete("waiting");
     this.grid.update(agent.row, agent.column, agent);
   }
+}
+
+function sleep(ms: number) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function sleepSync(ms: number) {
+  const end = Date.now() + ms;
+  while (Date.now() < end);
+};
+
+function afterPaint(callback: () => void) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(callback);
+  });
 }
 
 export {

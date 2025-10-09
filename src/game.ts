@@ -38,6 +38,10 @@ function startGame(): void {
   const playerEventPublisher = new AgentEventPublisher();
   player.eventPublisher = playerEventPublisher;
 
+  /* Maze config */
+  const maze = new Maze(grid);
+  maze.generate({ player });
+
   /* Enemies config */
   const gameContext = { grid, player, enemies: new Map<string, Enemy>() };
   const enemyEventPublisher = new AgentEventPublisher();
@@ -61,10 +65,6 @@ function startGame(): void {
 
   playerEventPublisher.subscribe(collisionHandler);
   enemyEventPublisher.subscribe(collisionHandler);
-
-  /* Maze config */
-  const maze = new Maze(grid);
-  maze.generate({ player });
 }
 
 export {
