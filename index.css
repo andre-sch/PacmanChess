@@ -19,6 +19,7 @@ html, body, #app {
 
 #app :is(header, main) {
   padding-inline: 0.25rem;
+  max-width: 50rem;
 }
 
 #app header {
