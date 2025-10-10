@@ -59,26 +59,22 @@ class Player extends GameObject {
   }
 }
 
-type Action = (player: Player) => void;
-
 class PlayerController {
-  private controls: {
-    [Key: string]: Action | undefined;
+  private keyboardDirections: {
+    [Key: string]: Direction | undefined;
   } = {
-    "ArrowUp": (player: Player) => player.direction = Direction.UP,
-    "ArrowDown": (player: Player) => player.direction = Direction.DOWN,
-    "ArrowLeft": (player: Player) => player.direction = Direction.LEFT,
-    "ArrowRight": (player: Player) => player.direction = Direction.RIGHT,
+    "ArrowUp": Direction.UP,
+    "ArrowDown": Direction.DOWN,
+    "ArrowLeft": Direction.LEFT,
+    "ArrowRight": Direction.RIGHT
   }
 
   constructor(private player: Player) {}
 
   public bindKeyboard(): void {
     document.addEventListener("keydown", (event) => {
-      const executeAction = this.controls[event.key];
-      if (executeAction) {
-        executeAction(this.player);
-      }
+      const direction = this.keyboardDirections[event.key];
+      if (direction) this.player.direction = direction;
     });
   }
 }

@@ -17,7 +17,7 @@ html, body, #app {
   align-items: center;
 }
 
-#app :is(header, main) {
+#app :is(header, footer, main) {
   padding-inline: 0.25rem;
   max-width: 50rem;
 }
@@ -86,6 +86,124 @@ html, body, #app {
   align-items: flex-start;
   flex-grow: 1;
   width: 100%;
+}
+
+#app footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+  width: 100%;
+  margin-block: 1.5rem;
+  height: 4rem;
+  border: 2px solid hsl(227, 76%, 45%);
+  background: repeating-linear-gradient(
+    45deg,
+    hsl(227, 76%, 45%),
+    hsl(227, 76%, 45%) 3px,
+    #fff 3px,
+    #fff 6px
+  );
+}
+
+/* todo: hide joystick on notebook/desktops */
+
+#joystick-container {
+  position: relative;
+}
+
+#joystick {
+  position: relative;
+  overflow: hidden;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background: hsl(212, 70%, 30%);
+}
+
+.joystick-sector {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+  height: 50%;
+  box-shadow: 0px 0px 0px 1px hsl(212, 100%, 15%);
+}
+
+.joystick-sector.up { top: 0%; left: 50%; }
+.joystick-sector.down { top: 50%; left: 50%; }
+.joystick-sector.left { top: 0%; left: 0%; }
+.joystick-sector.right { top: 0%; left: 50%; }
+
+.joystick-sector.up { transform-origin: bottom left; rotate: -45deg; }
+.joystick-sector.down { transform-origin: top left; rotate: 45deg; }
+.joystick-sector.left { transform-origin: bottom right; rotate: -45deg; }
+.joystick-sector.right { transform-origin: bottom left; rotate: 45deg; }
+
+.joystick-sector.up svg { margin: 0 0 7px 7px; rotate: 45deg; }
+.joystick-sector.down svg { margin: 7px 0 0 7px; rotate: 135deg; }
+.joystick-sector.left svg { margin: 0 7px 7px 0; rotate: -45deg; }
+.joystick-sector.right svg { margin: 0 0 7px 7px; rotate: 45deg; }
+
+#joystick-overlay,
+#joystick-overlay::after,
+#joystick-shadow,
+#joystick-outer-ring,
+#joystick-inner-ring,
+#joystick-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  border-radius: 50%;
+}
+
+#joystick-overlay {
+  overflow: hidden;
+  width: 8rem;
+  height: 4rem;
+  border-radius: 0%;
+}
+
+#joystick-overlay::after {
+  content: "";
+  display: block;
+  width: 8rem;
+  height: 8rem;
+  background: white;
+  border: 2px solid hsl(227, 76%, 45%);
+  box-sizing: border-box;
+}
+
+#joystick-shadow {
+  width: 4rem;
+  height: 4rem;
+  background: hsl(212, 100%, 15%);
+}
+
+#joystick-outer-ring {
+  width: 3.5rem;
+  height: 3.5rem;
+  background: hsl(210, 82%, 20%);
+}
+
+#joystick-inner-ring {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: hsl(212, 73%, 37%);
+}
+
+#joystick-knob {
+  width: 3rem;
+  height: 3rem;
+  background: hsl(224, 91%, 70%);
+  border: 2px solid hsl(212, 100%, 15%);
+}
+
+*:not(#joystick-knob) {
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 #grid {

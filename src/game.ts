@@ -65,8 +65,10 @@ function startGame(): void {
 
   playerEventPublisher.subscribe(collisionHandler);
   enemyEventPublisher.subscribe(collisionHandler);
+
+  /* Support devices without keyboard */
+  const joystick = new Joystick(player);
+  joystick.attachEvents();
 }
 
-export {
-  startGame
-};
+export { startGame };
