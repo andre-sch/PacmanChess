@@ -1,6 +1,7 @@
-import type { Grid } from "./grid";
+import type { GridRenderer } from "./grid";
 
-const container = document.querySelector("header") as HTMLElement;
+const header = document.querySelector("header") as HTMLElement;
+const footer = document.querySelector("footer") as HTMLElement;
 const chronometerElement = document.querySelector("#chronometer span") as HTMLSpanElement;
 const chronometerHandElement = document.querySelector("#clock-hand") as HTMLDivElement;
 const statusElement = document.querySelector("#status") as HTMLSpanElement;
@@ -8,7 +9,6 @@ const scoreElement = document.querySelector("#score") as HTMLSpanElement;
 const livesContainer = document.querySelector("#lives") as HTMLDivElement;
 
 class GameMetadata {
-  private readonly grid: Grid;
   public readonly minLives: number = 0;
   public readonly maxLives: number = 3;
   private _lives: number;
@@ -17,22 +17,17 @@ class GameMetadata {
   private _seconds: number;
   private clock: number;
 
-  constructor(
-    props: {
-      grid: Grid;
-      tileSize: number;
-      gapSize: number;
-    }
-  ) {
-    this.grid = props.grid;
+  constructor(gridRenderer: GridRenderer) {
     this.lives = this.maxLives;
     this.seconds = 0;
     this.score = 0;
 
-    container.style.visibility = "visible";
-    container.style.maxWidth =
-      (this.grid.numberOfColumns * props.tileSize +
-      (this.grid.numberOfColumns - 1) * props.gapSize) + "px";
+    header.style.visibility = "visible";
+    header.style.maxWidth = gridRenderer.maxWidth();
+
+    footer.style.visibility = "visible";
+    footer.style.height = `calc(100% - ${gridRenderer.maxHeight()})`;
+    footer.style.maxWidth = gridRenderer.maxWidth();
 
     this.startClock();
   }

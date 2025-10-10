@@ -150,23 +150,22 @@ class Grid {
 class GridRenderer implements GridSubscriber {
   constructor(
     private readonly container: HTMLElement,
-    private readonly grid: Grid
+    private readonly grid: Grid,
+    private readonly tileSize: number,
+    private readonly gapSize: number
   ) {}
 
-  public render(props: {
-    tileSize: number;
-    gapSize: number;
-  }) {
+  public render() {
     let gridElement = document.getElementById("grid");
     if (gridElement) gridElement.remove();
 
     gridElement = document.createElement("div");
     gridElement.id = "grid";
     gridElement.style.display = "grid";
-    gridElement.style.maxWidth = (this.grid.numberOfColumns * props.tileSize + (this.grid.numberOfColumns - 1) * props.gapSize) + "px";
-    gridElement.style.maxHeight = (this.grid.numberOfRows * props.tileSize + (this.grid.numberOfRows - 1) * props.gapSize) + "px";
+    gridElement.style.maxWidth = this.maxWidth();
+    gridElement.style.maxHeight = this.maxHeight();
     gridElement.style.gridTemplateColumns = `repeat(${this.grid.numberOfColumns}, 1fr)`;
-    gridElement.style.gap = `${props.gapSize}px`;
+    gridElement.style.gap = `${this.gapSize}px`;
 
     for (let i = 0; i < this.grid.numberOfRows; i++) {
       for (let j = 0; j < this.grid.numberOfColumns; j++) {
@@ -177,6 +176,7 @@ class GridRenderer implements GridSubscriber {
       }
     }
 
+    this.container.style.maxWidth = this.maxWidth();
     this.container.appendChild(gridElement);
   }
 
@@ -197,6 +197,18 @@ class GridRenderer implements GridSubscriber {
 
       updatedCell.appendChild(objectElement);
     }
+  }
+
+  public maxWidth(): string {
+    return (
+      (this.grid.numberOfColumns * this.tileSize +
+      (this.grid.numberOfColumns - 1) * this.gapSize) + "px");
+  }
+
+  public maxHeight(): string {
+    return (
+      (this.grid.numberOfRows * this.tileSize +
+      (this.grid.numberOfRows - 1) * this.gapSize) + "px");
   }
 }
 

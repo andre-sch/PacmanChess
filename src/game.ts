@@ -5,6 +5,7 @@ import { AgentEventPublisher } from "./agent";
 import { Maze } from "./maze";
 import { CollisionHandler } from "./collision";
 import { GameMetadata } from "./metadata";
+import { Joystick } from "./joystick";
 
 const container = document.querySelector("main") as HTMLElement;
 
@@ -19,8 +20,8 @@ function startGame(): void {
 
   const grid = new Grid(numberOfRows, numberOfColumns);
 
-  const gridRenderer = new GridRenderer(container, grid);
-  gridRenderer.render({ tileSize, gapSize });
+  const gridRenderer = new GridRenderer(container, grid, tileSize, gapSize);
+  gridRenderer.render();
 
   grid.eventPublisher = new GridEventPublisher();
   grid.eventPublisher.subscribe(gridRenderer);
@@ -57,10 +58,10 @@ function startGame(): void {
   }
 
   const enemyRenderer = new EnemyRenderer(grid);
-  enemyRenderer.render(...enemies);
+  // enemyRenderer.render(...enemies);
 
   /* Collision config */
-  const metadata = new GameMetadata({ grid, tileSize, gapSize });
+  const metadata = new GameMetadata(gridRenderer);
   const collisionHandler = new CollisionHandler({ metadata, grid, maze, player, enemies });
 
   playerEventPublisher.subscribe(collisionHandler);
