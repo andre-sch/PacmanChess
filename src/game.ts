@@ -1,8 +1,8 @@
 import { Grid, GridEventPublisher, GridRenderer } from "./grid";
 import { Player, PlayerController, PlayerRenderer } from "./player";
 import { EnemyRenderer, Enemy, Blinky, Inky, Pinky, Clyde } from "./enemy";
-import { AgentRendererOrchestrator, type AgentRenderer } from "./renderer";
-import { AgentEventPublisher } from "./agent";
+import { AgentRendererOrchestrator } from "./renderer";
+import { AgentEventPublisher, AgentRenderer } from "./agent";
 import { Maze } from "./maze";
 import { CollisionHandler } from "./collision";
 import { GameMetadata } from "./metadata";
