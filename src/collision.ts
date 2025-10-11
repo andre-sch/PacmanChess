@@ -5,6 +5,7 @@ import type { AgentMovement, AgentRenderer, AgentSubscriber } from "./agent";
 import type { GameObject } from "./gameObject";
 import type { Player } from "./player";
 import type { Enemy } from "./enemy";
+import { throwConfetti } from "./confetti";
 
 class CollisionHandler implements AgentSubscriber {
   private readonly grid: Grid;
@@ -81,6 +82,37 @@ class CollisionHandler implements AgentSubscriber {
     if (dot && context.agent.type == "player") {
       this.grid.remove(nextRow, nextColumn, dot);
       this.metadata.score += 10;
+    }
+
+    let levelCleared = true;
+    for (const row of this.grid.elements) {
+      for (const objectList of row) {
+        for (const object of objectList) {
+          if (object.type == "dot" || object.type == "pellet") {
+            levelCleared = false;
+            break;
+          }
+        }
+      }
+    }
+
+    if (levelCleared) {
+      this.metadata.status = "Victory";
+      throwConfetti();
+
+      this.metadata.pauseClock();
+      this.renderer.pauseRenderingUpdate();
+      this.freezeAgents();
+
+      await sleep(4000);
+
+      this.metadata.reset();
+      this.resetGrid();
+      this.resetAgents();
+      this.renderer.resumeRenderingUpdate();
+      this.metadata.startClock();
+
+      return;
     }
 
     const intangible = (object: GameObject) => object.variations.has("waiting");
