@@ -6,12 +6,21 @@ const joystickKnob = document.querySelector("#joystick-knob") as HTMLDivElement;
 const joystickRing = document.querySelector("#joystick-inner-ring") as HTMLDivElement;
 
 class Joystick {
-  constructor(private player: Player) {}
+  private player: Player;
+  constructor() {
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+      joystickElement.classList.add("enabled");
+    }
+  }
 
   public attachEvents() {
     document.addEventListener("pointerdown", this.start.bind(this));
     document.addEventListener("pointermove", this.move.bind(this));
     document.addEventListener("pointerup", this.end.bind(this));
+  }
+
+  public bind(player: Player) {
+    this.player = player;
   }
 
   private end() {

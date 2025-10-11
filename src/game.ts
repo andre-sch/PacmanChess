@@ -10,6 +10,10 @@ import { Joystick } from "./joystick";
 const container = document.querySelector("main") as HTMLElement;
 
 function startGame(): void {
+  /* Support devices without keyboard */
+  const joystick = new Joystick();
+  joystick.attachEvents();
+
   /* Grid config */
   const tileSize = 32;
   const gapSize = 2;
@@ -32,6 +36,7 @@ function startGame(): void {
 
   const playerController = new PlayerController(player);
   playerController.bindKeyboard();
+  joystick.bind(player);
 
   const playerRenderer = new PlayerRenderer(player, grid);
   playerRenderer.render();
@@ -65,10 +70,6 @@ function startGame(): void {
   const metadata = new GameMetadata(gridRenderer);
   const gameOrchestrator = new GameOrchestrator({ metadata, grid, maze, player, enemies, renderer });
   playerRenderer.attachSubscriber(() => gameOrchestrator.onStateChange());
-
-  /* Support devices without keyboard */
-  const joystick = new Joystick(player);
-  joystick.attachEvents();
 }
 
 export { startGame };
