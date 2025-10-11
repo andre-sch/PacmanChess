@@ -14,9 +14,9 @@ class Joystick {
   }
 
   public attachEvents() {
-    document.addEventListener("pointerdown", this.start.bind(this));
-    document.addEventListener("pointermove", this.move.bind(this));
-    document.addEventListener("pointerup", this.end.bind(this));
+    document.addEventListener("touchstart", this.start.bind(this));
+    document.addEventListener("touchmove", this.move.bind(this));
+    document.addEventListener("touchend", this.end.bind(this));
   }
 
   public bind(player: Player) {
@@ -27,22 +27,22 @@ class Joystick {
     joystickKnob.style.transform = "";
   }
 
-  private start(event: PointerEvent) {
+  private start(event: TouchEvent) {
     this.control(event);
   }
 
-  private move(event: PointerEvent) {
+  private move(event: TouchEvent) {
     this.control(event);
   }
 
-  private control(event: PointerEvent) {
-    if (event.pressure == 0) return;
+  private control(event: TouchEvent) {
+    if (event.touches.length == 0) return;
 
     this.updateTranslation(event);
     this.updatePlayerMovement(event);
   }
 
-  private updateTranslation(event: PointerEvent) {
+  private updateTranslation(event: TouchEvent) {
     const { relativeX, relativeY } = this.calculateRelativePosition(event);
 
     const knobRadius = joystickRing.offsetWidth / 2;
@@ -61,17 +61,17 @@ class Joystick {
     joystickKnob.style.transform = `translate(${translateX}px, ${translateY}px)`;
   }
 
-  private calculateRelativePosition(event: PointerEvent) {
-    const pointerX = Math.round(event.clientX);
-    const pointerY = Math.round(event.clientY);
+  private calculateRelativePosition(event: TouchEvent) {
+    const touchX = Math.round(event.touches[0].clientX);
+    const touchY = Math.round(event.touches[0].clientY);
 
     const joystickRect = joystickElement.getBoundingClientRect();
     const joystickCenterX = Math.round(joystickRect.left + joystickRect.width / 2);
     const joystickCenterY = Math.round(joystickRect.top + joystickRect.height / 2);
 
     return {
-      relativeX: pointerX - joystickCenterX,
-      relativeY: pointerY - joystickCenterY
+      relativeX: touchX - joystickCenterX,
+      relativeY: touchY - joystickCenterY
     };
   }
 
@@ -82,7 +82,7 @@ class Joystick {
     return translation;
   }
 
-  private updatePlayerMovement(event: PointerEvent) {
+  private updatePlayerMovement(event: TouchEvent) {
     const { relativeX, relativeY } = this.calculateRelativePosition(event);
     let knobAngle = 180 / Math.PI * Math.atan2(relativeY, relativeX);
 
