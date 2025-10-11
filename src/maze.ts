@@ -110,7 +110,7 @@ class Maze {
       }
     }
 
-    const numberOfPellets = Math.min(7, Math.floor(coordinatesOfDots.length / 45));
+    const numberOfPellets = Math.min(5, Math.floor(coordinatesOfDots.length / 45));
     const range = Math.floor(coordinatesOfDots.length / (numberOfPellets + 1));
 
     for (let i = 0; i < numberOfPellets; i++) {
