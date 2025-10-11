@@ -2,7 +2,7 @@ import { Grid } from "./grid";
 import { GameObject } from "./gameObject";
 import { Player } from "./player";
 import { Direction } from "./direction";
-import { AgentEventPublisher, AgentRenderer } from "./agent";
+import { AgentRenderer } from "./renderer";
 
 interface GameContext {
   grid: Grid;
@@ -23,21 +23,18 @@ abstract class Enemy extends GameObject {
   public row: number;
   public column: number;
   public direction: Direction;
-  private eventPublisher?: AgentEventPublisher;
 
   constructor(
     public name: string,
     private startRow: number = 0,
     private startColumn: number = 0,
     private startDirection: Direction = Direction.RIGHT,
-    protected context: GameContext,
-    options?: { eventPublisher: AgentEventPublisher }
+    protected context: GameContext
   ) {
     super("enemy");
     this.row = startRow;
     this.column = startColumn;
     this.direction = startDirection;
-    this.eventPublisher = options?.eventPublisher;
     this.variations.add(this.name);
   }
 
@@ -107,18 +104,10 @@ abstract class Enemy extends GameObject {
   }
 
   public move(): void {
-    const previousPosition: [number, number] = [this.row, this.column];
-    const nextPosition = this.nextPosition();
+    const [nextRow, nextColumn] = this.nextPosition();
 
-    const [nextRow, nextColumn] = nextPosition;
     this.row = nextRow;
     this.column = nextColumn;
-
-    this.eventPublisher?.publishUpdate({
-      agent: this,
-      previousPosition,
-      nextPosition
-    });
   }
 
   public reset(): void {
@@ -134,8 +123,8 @@ class Blinky extends Enemy {
   private safeZoneSize: number = 5;
   private safePoint: [number, number] | undefined;
 
-  constructor(context: GameContext, options?: { eventPublisher: AgentEventPublisher }) {
-    super("blinky", ...context.grid.topRight, Direction.DOWN, context, options);
+  constructor(context: GameContext) {
+    super("blinky", ...context.grid.topRight, Direction.DOWN, context);
   }
 
   public nextDirection(): Direction {
@@ -165,8 +154,8 @@ class Inky extends Enemy {
   private safeZoneSize: number = 5;
   private safePoint: [number, number] | undefined;
 
-  constructor(context: GameContext, options?: { eventPublisher: AgentEventPublisher }) {
-    super("inky", ...context.grid.bottomRight, Direction.LEFT, context, options);
+  constructor(context: GameContext) {
+    super("inky", ...context.grid.bottomRight, Direction.LEFT, context);
   }
 
   public nextDirection(): Direction {
@@ -224,8 +213,8 @@ class Pinky extends Enemy {
   private safeZoneSize: number = 5;
   private safePoint: [number, number] | undefined;
 
-  constructor(context: GameContext, options?: { eventPublisher: AgentEventPublisher }) {
-    super("pinky", ...context.grid.topLeft, Direction.RIGHT, context, options);
+  constructor(context: GameContext) {
+    super("pinky", ...context.grid.topLeft, Direction.RIGHT, context);
   }
 
   public nextDirection(): Direction {
@@ -267,8 +256,8 @@ class Clyde extends Enemy {
   private safeZoneSize: number = 5;
   private safePoint: [number, number] | undefined;
 
-  constructor(context: GameContext, options?: { eventPublisher: AgentEventPublisher }) {
-    super("clyde", ...context.grid.bottomLeft, Direction.UP, context, options);
+  constructor(context: GameContext) {
+    super("clyde", ...context.grid.bottomLeft, Direction.UP, context);
   }
 
   public nextDirection(): Direction {

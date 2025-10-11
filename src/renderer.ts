@@ -1,6 +1,15 @@
-import { AgentRenderer } from "./agent";
+abstract class AgentRenderer {
+  abstract render(): void;
+  abstract pauseRenderingUpdate(): void;
+  abstract resumeRenderingUpdate(): void;
+  abstract updateRendering(): void;
+  abstract renderingTimeout(): number;
+  public minRenderingTimeout() {
+    return this.renderingTimeout();
+  }
+}
 
-class AgentRendererOrchestrator extends AgentRenderer {
+class RendererOrchestrator extends AgentRenderer {
   private timeout: number;
   private interval: number;
 
@@ -56,4 +65,7 @@ function greatestCommonDivisor(a: number, b: number) {
   return a;
 }
 
-export { AgentRendererOrchestrator };
+export {
+  AgentRenderer,
+  RendererOrchestrator
+};

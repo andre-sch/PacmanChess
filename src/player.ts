@@ -1,7 +1,7 @@
 import { Grid } from "./grid";
 import { GameObject } from "./gameObject";
 import { Direction } from "./direction";
-import { AgentEventPublisher, AgentRenderer } from "./agent";
+import { AgentRenderer } from "./renderer";
 
 class Player extends GameObject {
   private movements: {
@@ -16,19 +16,16 @@ class Player extends GameObject {
   public row: number;
   public column: number;
   public direction: Direction;
-  public eventPublisher?: AgentEventPublisher;
 
   constructor(
     private startRow: number = 0,
     private startColumn: number = 0,
-    private startDirection: Direction = Direction.RIGHT,
-    options?: { eventPublisher: AgentEventPublisher }
+    private startDirection: Direction = Direction.RIGHT
   ) {
     super("player");
     this.row = startRow;
     this.column = startColumn;
     this.direction = startDirection;
-    this.eventPublisher = options?.eventPublisher;
   }
 
   public nextPosition(): [number, number] {
@@ -37,18 +34,10 @@ class Player extends GameObject {
   }
 
   public move(): void {
-    const previousPosition: [number, number] = [this.row, this.column];
-    const nextPosition = this.nextPosition();
+    const [nextRow, nextColumn] = this.nextPosition();
 
-    const [nextRow, nextColumn] = nextPosition;
     this.row = nextRow;
     this.column = nextColumn;
-
-    this.eventPublisher?.publishUpdate({
-      agent: this,
-      previousPosition,
-      nextPosition
-    });
   }
 
   public reset(): void {
@@ -79,6 +68,8 @@ class PlayerController {
   }
 }
 
+type Subscriber = () => void;
+
 class PlayerRenderer extends AgentRenderer {
   private iterations: number;
   private interval: number;
@@ -86,7 +77,8 @@ class PlayerRenderer extends AgentRenderer {
 
   constructor(
     private readonly player: Player,
-    private readonly grid: Grid
+    private readonly grid: Grid,
+    private readonly subscribers: Subscriber[] = []
   ) {
     super();
     const animationDelay = 100;
@@ -107,6 +99,16 @@ class PlayerRenderer extends AgentRenderer {
       animation-duration: ${animationTimeout / this.iterations}ms;
       animation-delay: 0ms;
     }`);
+  }
+
+  public attachSubscriber(subscriber: Subscriber): void {
+    this.subscribers.push(subscriber);
+  }
+
+  private notifySubscribers() {
+    for (const subscriber of this.subscribers) {
+      subscriber();
+    }
   }
 
   public renderingTimeout(): number {
@@ -174,6 +176,7 @@ class PlayerRenderer extends AgentRenderer {
     }
 
     this.grid.add(this.player.row, this.player.column, this.player);
+    this.notifySubscribers();
   }
 }
 

@@ -1,10 +1,9 @@
 import { Grid, GridEventPublisher, GridRenderer } from "./grid";
 import { Player, PlayerController, PlayerRenderer } from "./player";
 import { EnemyRenderer, Enemy, Blinky, Inky, Pinky, Clyde } from "./enemy";
-import { AgentRendererOrchestrator } from "./renderer";
-import { AgentEventPublisher, AgentRenderer } from "./agent";
+import { AgentRenderer, RendererOrchestrator } from "./renderer";
 import { Maze } from "./maze";
-import { CollisionHandler } from "./collision";
+import { GameOrchestrator } from "./gameOrchestrator";
 import { GameMetadata } from "./metadata";
 import { Joystick } from "./joystick";
 
@@ -37,41 +36,35 @@ function startGame(): void {
   const playerRenderer = new PlayerRenderer(player, grid);
   playerRenderer.render();
 
-  const playerEventPublisher = new AgentEventPublisher();
-  player.eventPublisher = playerEventPublisher;
-
   /* Maze config */
   const maze = new Maze(grid);
   maze.generate({ player });
 
   /* Enemies config */
   const gameContext = { grid, player, enemies: new Map<string, Enemy>() };
-  const enemyEventPublisher = new AgentEventPublisher();
 
-  const blinky = new Blinky(gameContext, { eventPublisher: enemyEventPublisher });
-  const inky = new Inky(gameContext, { eventPublisher: enemyEventPublisher });
-  const pinky = new Pinky(gameContext, { eventPublisher: enemyEventPublisher });
-  const clyde = new Clyde(gameContext, { eventPublisher: enemyEventPublisher });
+  const blinky = new Blinky(gameContext);
+  const inky = new Inky(gameContext);
+  const pinky = new Pinky(gameContext);
+  const clyde = new Clyde(gameContext);
 
   const enemies = [blinky, inky, pinky, clyde];
-  const renderers: AgentRenderer[] = [playerRenderer];
+  const renderers: AgentRenderer[] = [];
   for (const enemy of enemies) {
     gameContext.enemies.set(enemy.name, enemy);
 
     const enemyRenderer = new EnemyRenderer(enemy, grid);
     renderers.push(enemyRenderer);
-  }
+  } renderers.push(playerRenderer);
 
-  const renderer = new AgentRendererOrchestrator(renderers);
+  /* Orchestration config */
+  const renderer = new RendererOrchestrator(renderers);
   renderer.render();
   renderer.resumeRenderingUpdate();
 
-  /* Collision config */
   const metadata = new GameMetadata(gridRenderer);
-  const collisionHandler = new CollisionHandler({ metadata, grid, maze, player, enemies, renderer });
-
-  playerEventPublisher.subscribe(collisionHandler);
-  enemyEventPublisher.subscribe(collisionHandler);
+  const gameOrchestrator = new GameOrchestrator({ metadata, grid, maze, player, enemies, renderer });
+  playerRenderer.attachSubscriber(() => gameOrchestrator.onStateChange());
 
   /* Support devices without keyboard */
   const joystick = new Joystick(player);

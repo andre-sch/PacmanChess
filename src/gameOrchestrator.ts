@@ -1,13 +1,13 @@
 import type { Grid } from "./grid";
 import type { Maze } from "./maze";
 import type { GameMetadata } from "./metadata";
-import type { AgentMovement, AgentRenderer, AgentSubscriber } from "./agent";
 import type { GameObject } from "./gameObject";
 import type { Player } from "./player";
 import type { Enemy } from "./enemy";
+import type { AgentRenderer } from "./renderer";
 import { throwConfetti } from "./confetti";
 
-class CollisionHandler implements AgentSubscriber {
+class GameOrchestrator {
   private readonly grid: Grid;
   private readonly maze: Maze;
   private readonly player: Player;
@@ -57,14 +57,18 @@ class CollisionHandler implements AgentSubscriber {
     }
   }
 
-  public async update(context: AgentMovement): Promise<void> {
-    const [nextRow, nextColumn] = context.nextPosition;
-    const target = this.grid.elements[nextRow][nextColumn];
-    if (target.length == 0) return;
+  public async onStateChange(): Promise<void> {
+    const playerPosition = this.grid.elements[this.player.row][this.player.column];
 
-    const pellet = target.find(object => object.type == "pellet");
-    if (pellet && context.agent.type == "player") {
-      this.grid.remove(nextRow, nextColumn, pellet);
+    const dot = playerPosition.find(object => object.type == "dot");
+    if (dot) {
+      this.grid.remove(this.player.row, this.player.column, dot);
+      this.metadata.score += 10;
+    }
+
+    const pellet = playerPosition.find(object => object.type == "pellet");
+    if (pellet) {
+      this.grid.remove(this.player.row, this.player.column, pellet);
       this.player.variations.add("promoted");
       this.metadata.score += 50;
 
@@ -76,12 +80,6 @@ class CollisionHandler implements AgentSubscriber {
           this.playerTransformation();
         }, this.promotionDuration);
       });
-    }
-
-    const dot = target.find(object => object.type == "dot");
-    if (dot && context.agent.type == "player") {
-      this.grid.remove(nextRow, nextColumn, dot);
-      this.metadata.score += 10;
     }
 
     let levelCleared = true;
@@ -116,16 +114,12 @@ class CollisionHandler implements AgentSubscriber {
     }
 
     const intangible = (object: GameObject) => object.variations.has("waiting");
-    const hitsEnemy = target.some(object => object.type == "enemy" && !intangible(object));
-    const hitsPlayer = target.some(object => object.type == "player") && !intangible(context.agent);
+    const hitsEnemy = playerPosition.some(object => object.type == "enemy" && !intangible(object));
 
-    if (
-      context.agent.type == "player" && hitsEnemy ||
-      context.agent.type == "enemy" && hitsPlayer
-    ) {
+    if (hitsEnemy) {
       if (this.player.variations.has("promoted")) {
-        for (const object of [...target, context.agent]) {
-          if (object.type == "enemy") {
+        for (const object of playerPosition) {
+          if (object.type == "enemy" && !intangible(object)) {
             const enemy = object as Enemy;
             this.grid.remove(enemy.row, enemy.column, enemy);
             this.metadata.score += 100;
@@ -202,6 +196,7 @@ class CollisionHandler implements AgentSubscriber {
   private freezeAgents(): void {
     for (const agent of this.agents) {
       agent.variations.add("freeze");
+      this.grid.update(agent.row, agent.column, agent);
     }
   }
 }
@@ -213,5 +208,5 @@ function sleep(ms: number) {
 }
 
 export {
-  CollisionHandler
+  GameOrchestrator
 };
