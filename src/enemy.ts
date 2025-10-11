@@ -2,7 +2,7 @@ import { Grid } from "./grid";
 import { GameObject } from "./gameObject";
 import { Player } from "./player";
 import { Direction } from "./direction";
-import type { AgentEventPublisher } from "./agent";
+import { AgentEventPublisher, AgentRenderer } from "./agent";
 
 interface GameContext {
   grid: Grid;
@@ -312,57 +312,74 @@ class Clyde extends Enemy {
   }
 }
 
-class EnemyRenderer {
-  private animationTimeout: number;
+class EnemyRenderer extends AgentRenderer {
+  private interval: number;
+  private timeout: number;
 
-  constructor(private grid: Grid) {
-    const animationDelay = 0.1;
-    const animationDuration = 0.6;
-    this.animationTimeout = (animationDelay + animationDuration) * 1000;
+  constructor(
+    private enemy: Enemy,
+    private grid: Grid
+  ) {
+    super();
+    const delay = 100;
+    const duration = 600;
+    this.timeout = delay + duration;
 
     const css = document.styleSheets[0];
     css.insertRule(`.enemy::after {
-      animation-duration: ${animationDuration}s;
-      animation-delay: ${animationDelay}s;
+      animation-duration: ${duration}ms;
+      animation-delay: ${delay}ms;
     }`);
   }
 
-  public render(...enemies: Enemy[]) {
-    enemies.forEach(enemy => {
-      enemy.variations.add(enemy.direction);
-      this.grid.add(enemy.row, enemy.column, enemy);
+  public renderingTimeout(): number {
+    return this.timeout;
+  }
 
-      setInterval(() => {
-        if (enemy.variations.has("waiting")) return;
-        this.grid.remove(enemy.row, enemy.column, enemy);
+  public render() {
+    this.enemy.variations.add(this.enemy.direction);
+    this.grid.add(this.enemy.row, this.enemy.column, this.enemy);
+  }
 
-        const previousDirectionKey = Array.from(enemy.variations).toString().match(/up|down|left|right/)![0];
-        const previousDirection = Direction[previousDirectionKey.toUpperCase() as keyof typeof Direction];
+  public pauseRenderingUpdate() {
+    clearInterval(this.interval);
+  }
 
-        if (
-          !enemy.variations.has("stopped") &&
-          this.grid.canTraverse(...enemy.nextPosition())
-        ) {
-          enemy.move();
-        }
+  public resumeRenderingUpdate() {
+    this.interval = setInterval(this.updateRendering, this.timeout);
+  }
 
-        enemy.direction = enemy.nextDirection();
-        if (this.grid.canTraverse(...enemy.nextPosition())) {
-          enemy.variations.delete("stopped");
-          enemy.variations.delete(previousDirection);
-          enemy.variations.add(enemy.direction);
-        } else {
-          enemy.direction = previousDirection;
-          if (this.grid.canTraverse(...enemy.nextPosition())) {
-            enemy.variations.delete("stopped");
-          } else enemy.variations.add("stopped");
+  public updateRendering() {
+    const transitions = ["freeze", "waiting"];
+    if (transitions.some(variation => this.enemy.variations.has(variation))) return;
 
-          enemy.direction = enemy.nextDirection();
-        }
+    this.grid.remove(this.enemy.row, this.enemy.column, this.enemy);
 
-        this.grid.add(enemy.row, enemy.column, enemy);
-      }, this.animationTimeout);
-    });
+    const previousDirectionKey = Array.from(this.enemy.variations).toString().match(/up|down|left|right/)![0];
+    const previousDirection = Direction[previousDirectionKey.toUpperCase() as keyof typeof Direction];
+
+    if (
+      !this.enemy.variations.has("stopped") &&
+      this.grid.canTraverse(...this.enemy.nextPosition())
+    ) {
+      this.enemy.move();
+    }
+
+    this.enemy.direction = this.enemy.nextDirection();
+    if (this.grid.canTraverse(...this.enemy.nextPosition())) {
+      this.enemy.variations.delete("stopped");
+      this.enemy.variations.delete(previousDirection);
+      this.enemy.variations.add(this.enemy.direction);
+    } else {
+      this.enemy.direction = previousDirection;
+      if (this.grid.canTraverse(...this.enemy.nextPosition())) {
+        this.enemy.variations.delete("stopped");
+      } else this.enemy.variations.add("stopped");
+
+      this.enemy.direction = this.enemy.nextDirection();
+    }
+
+    this.grid.add(this.enemy.row, this.enemy.column, this.enemy);
   }
 }
 

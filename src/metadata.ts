@@ -18,9 +18,7 @@ class GameMetadata {
   private clock: number;
 
   constructor(gridRenderer: GridRenderer) {
-    this.lives = this.maxLives;
-    this.seconds = 0;
-    this.score = 0;
+    this.reset();
 
     header.style.visibility = "visible";
     header.style.maxWidth = gridRenderer.maxWidth();
@@ -30,6 +28,13 @@ class GameMetadata {
     footer.style.maxWidth = gridRenderer.maxWidth();
 
     this.startClock();
+  }
+
+  public reset(): void {
+    this.level = this.minLevel;
+    this.lives = this.maxLives;
+    this.seconds = 0;
+    this.score = 0;
   }
 
   public startClock(): void {

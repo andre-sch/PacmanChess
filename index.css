@@ -344,7 +344,8 @@ html, body, #app {
   animation-delay: 0s;
 }
 
-.cell .stopped:not(.waiting)::after { animation-play-state: paused; }
+.cell .stopped:not(.waiting)::after,
+.cell .freeze:not(.waiting)::after { animation-play-state: paused; }
 
 .cell .player.promoted.right::after { animation-name: rookMoveRight; }
 .cell .player.promoted.left::after { animation-name: rookMoveLeft; scale: -1 1; }

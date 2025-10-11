@@ -1,7 +1,7 @@
 import { Grid } from "./grid";
 import { GameObject } from "./gameObject";
 import { Direction } from "./direction";
-import type { AgentEventPublisher } from "./agent";
+import { AgentEventPublisher, AgentRenderer } from "./agent";
 
 class Player extends GameObject {
   private movements: {
@@ -79,72 +79,101 @@ class PlayerController {
   }
 }
 
-class PlayerRenderer {
-  private animationTimeout: number;
-  private promotionSpeedRatio = 5;
+class PlayerRenderer extends AgentRenderer {
+  private iterations: number;
+  private interval: number;
+  private timeout: number;
 
   constructor(
     private readonly player: Player,
     private readonly grid: Grid
   ) {
-    const animationDelay = 0.1;
-    const animationDuration = 0.6;
-    this.animationTimeout = (animationDelay + animationDuration) * 1000;
+    super();
+    const animationDelay = 100;
+    const animationDuration = 600;
+    const animationTimeout = animationDelay + animationDuration;
+
+    const promotionSpeedRatio = 5;
+    this.iterations = promotionSpeedRatio;
+    this.timeout = animationTimeout / this.iterations;
 
     const css = document.styleSheets[0];
     css.insertRule(`.player::after {
-      animation-duration: ${animationDuration}s;
-      animation-delay: ${animationDelay}s;
+      animation-duration: ${animationDuration}ms;
+      animation-delay: ${animationDelay}ms;
     }`);
 
     css.insertRule(`.player.promoted::after {
-      animation-duration: ${(animationDuration + animationDelay) / this.promotionSpeedRatio}s;
-      animation-delay: 0s;
+      animation-duration: ${animationTimeout / this.iterations}ms;
+      animation-delay: 0ms;
     }`);
+  }
+
+  public renderingTimeout(): number {
+    if (this.player.variations.has("promoted")) {
+      return this.timeout;
+    } else {
+      return this.timeout * this.iterations;
+    }
+  }
+
+  public minRenderingTimeout(): number {
+    return this.timeout;
   }
 
   public render() {
     this.player.variations.add(this.player.direction);
     this.grid.add(this.player.row, this.player.column, this.player);
+  }
 
-    let count = 0;
-    const iterations = this.promotionSpeedRatio;
+  public pauseRenderingUpdate() {
+    clearInterval(this.interval);
+  }
 
-    setInterval(() => {
-      count++;
-      if (this.player.variations.has("promoted") || count % iterations == 1) {
-        if (this.player.variations.has("waiting") || this.player.variations.has("transforming")) return;
-        this.grid.remove(this.player.row, this.player.column, this.player);
-
-        const previousDirectionKey = Array.from(this.player.variations).toString().match(/up|down|left|right/)![0];
-        const previousDirection = Direction[previousDirectionKey.toUpperCase() as keyof typeof Direction];
-        const nextDirection = this.player.direction;
-
-        this.player.direction = previousDirection;
-        if (
-          !this.player.variations.has("stopped") &&
-          this.grid.canTraverse(...this.player.nextPosition())
-        ) {
-          this.player.move();
-        }
-
-        this.player.direction = nextDirection;
-        if (this.grid.canTraverse(...this.player.nextPosition())) {
-          this.player.variations.delete("stopped");
-          this.player.variations.delete(previousDirection);
-          this.player.variations.add(nextDirection);
-        } else {
-          this.player.direction = previousDirection;
-          if (this.grid.canTraverse(...this.player.nextPosition())) {
-            this.player.variations.delete("stopped");
-          } else this.player.variations.add("stopped");
-
-          this.player.direction = nextDirection;
-        }
-
-        this.grid.add(this.player.row, this.player.column, this.player);
+  public resumeRenderingUpdate(): void {
+    let time = 0;
+    this.interval = setInterval(() => {
+      if (time % this.renderingTimeout() == 0) {
+        this.updateRendering();
       }
-    }, this.animationTimeout / iterations);
+
+      time += this.timeout;
+    }, this.timeout);
+  }
+
+  public updateRendering() {
+    const transitions = ["freeze", "waiting", "transforming"];
+    if (transitions.some(variation => this.player.variations.has(variation))) return;
+
+    this.grid.remove(this.player.row, this.player.column, this.player);
+
+    const previousDirectionKey = Array.from(this.player.variations).toString().match(/up|down|left|right/)![0];
+    const previousDirection = Direction[previousDirectionKey.toUpperCase() as keyof typeof Direction];
+    const nextDirection = this.player.direction;
+
+    this.player.direction = previousDirection;
+    if (
+      !this.player.variations.has("stopped") &&
+      this.grid.canTraverse(...this.player.nextPosition())
+    ) {
+      this.player.move();
+    }
+
+    this.player.direction = nextDirection;
+    if (this.grid.canTraverse(...this.player.nextPosition())) {
+      this.player.variations.delete("stopped");
+      this.player.variations.delete(previousDirection);
+      this.player.variations.add(nextDirection);
+    } else {
+      this.player.direction = previousDirection;
+      if (this.grid.canTraverse(...this.player.nextPosition())) {
+        this.player.variations.delete("stopped");
+      } else this.player.variations.add("stopped");
+
+      this.player.direction = nextDirection;
+    }
+
+    this.grid.add(this.player.row, this.player.column, this.player);
   }
 }
 

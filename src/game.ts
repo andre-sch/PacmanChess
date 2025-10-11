@@ -1,6 +1,7 @@
 import { Grid, GridEventPublisher, GridRenderer } from "./grid";
 import { Player, PlayerController, PlayerRenderer } from "./player";
 import { EnemyRenderer, Enemy, Blinky, Inky, Pinky, Clyde } from "./enemy";
+import { AgentRendererOrchestrator, type AgentRenderer } from "./renderer";
 import { AgentEventPublisher } from "./agent";
 import { Maze } from "./maze";
 import { CollisionHandler } from "./collision";
@@ -53,16 +54,21 @@ function startGame(): void {
   const clyde = new Clyde(gameContext, { eventPublisher: enemyEventPublisher });
 
   const enemies = [blinky, inky, pinky, clyde];
+  const renderers: AgentRenderer[] = [playerRenderer];
   for (const enemy of enemies) {
     gameContext.enemies.set(enemy.name, enemy);
+
+    const enemyRenderer = new EnemyRenderer(enemy, grid);
+    renderers.push(enemyRenderer);
   }
 
-  const enemyRenderer = new EnemyRenderer(grid);
-  // enemyRenderer.render(...enemies);
+  const renderer = new AgentRendererOrchestrator(renderers);
+  renderer.render();
+  renderer.resumeRenderingUpdate();
 
   /* Collision config */
   const metadata = new GameMetadata(gridRenderer);
-  const collisionHandler = new CollisionHandler({ metadata, grid, maze, player, enemies });
+  const collisionHandler = new CollisionHandler({ metadata, grid, maze, player, enemies, renderer });
 
   playerEventPublisher.subscribe(collisionHandler);
   enemyEventPublisher.subscribe(collisionHandler);

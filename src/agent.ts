@@ -22,5 +22,16 @@ class AgentEventPublisher {
   }
 }
 
-export { AgentEventPublisher };
+abstract class AgentRenderer {
+  abstract render(): void;
+  abstract pauseRenderingUpdate(): void;
+  abstract resumeRenderingUpdate(): void;
+  abstract updateRendering(): void;
+  abstract renderingTimeout(): number;
+  public minRenderingTimeout() {
+    return this.renderingTimeout();
+  }
+}
+
+export { AgentEventPublisher, AgentRenderer };
 export type { AgentMovement, AgentSubscriber };
