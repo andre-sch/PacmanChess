@@ -2,6 +2,7 @@ import { Grid } from "./grid";
 import { GameObject } from "./gameObject";
 import { Direction } from "./direction";
 import { AgentRenderer } from "./renderer";
+import { css } from "./styles";
 
 class Player extends GameObject {
   private movements: {
@@ -89,7 +90,6 @@ class PlayerRenderer extends AgentRenderer {
     this.iterations = promotionSpeedRatio;
     this.timeout = animationTimeout / this.iterations;
 
-    const css = document.styleSheets[0];
     css.insertRule(`.player::after {
       animation-duration: ${animationDuration}ms;
       animation-delay: ${animationDelay}ms;

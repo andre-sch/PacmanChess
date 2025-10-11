@@ -3,6 +3,7 @@ import { GameObject } from "./gameObject";
 import { Player } from "./player";
 import { Direction } from "./direction";
 import { AgentRenderer } from "./renderer";
+import { css } from "./styles";
 
 interface GameContext {
   grid: Grid;
@@ -314,7 +315,6 @@ class EnemyRenderer extends AgentRenderer {
     const duration = 600;
     this.timeout = delay + duration;
 
-    const css = document.styleSheets[0];
     css.insertRule(`.enemy::after {
       animation-duration: ${duration}ms;
       animation-delay: ${delay}ms;

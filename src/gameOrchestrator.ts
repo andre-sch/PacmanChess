@@ -6,6 +6,7 @@ import type { Player } from "./player";
 import type { Enemy } from "./enemy";
 import type { AgentRenderer } from "./renderer";
 import { throwConfetti } from "./confetti";
+import { css } from "./styles";
 
 class GameOrchestrator {
   private readonly grid: Grid;
@@ -47,7 +48,6 @@ class GameOrchestrator {
     this.playerWaiting = props.playerWaiting ?? 4000;
     this.enemyWaiting = props.enemyWaiting ?? 5000;
 
-    const css = document.styleSheets[0];
     css.insertRule(`.player.transforming::after {
       animation-duration: ${this.transformingDuration}ms !important;
     }`);
