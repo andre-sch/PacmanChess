@@ -320,7 +320,7 @@ html, body, #app {
 .cell .enemy.clyde::after { background-image: url("/assets/black-pawn-clyde.png"); }
 
 .cell .player.promoted::after {
-  background-image: url("/assets/white-rook.png");
+  background-image: var(--white-rook-url);
   animation-timing-function: linear;
 }
 
