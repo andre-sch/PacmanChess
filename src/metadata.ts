@@ -31,7 +31,6 @@ class GameMetadata {
   }
 
   public reset(): void {
-    this.level = this.minLevel;
     this.lives = this.maxLives;
     this.seconds = 0;
     this.score = 0;
